@@ -10,24 +10,22 @@ import ApiInfo from "@/components/ApiInfo";
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-indigo-50 p-4 md:p-8">
+    <div className="min-h-screen bg-gradient-to-br from-[#1A1F2C] to-[#2C1F3D] p-4 md:p-8">
       <div className="max-w-4xl mx-auto">
         <header className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">Time Utility Tools</h1>
-          <p className="text-gray-600">All-in-one time conversion and manipulation tools</p>
+          <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-cyan-400 mb-2">
+            Mess with Time
+          </h1>
+          <p className="text-gray-400">Manipulate time at your will</p>
         </header>
         
-        <div className="bg-white rounded-xl shadow-lg p-6">
+        <div className="bg-black/20 backdrop-blur-lg border border-purple-500/10 rounded-xl shadow-lg shadow-purple-500/10 p-6">
           <Tabs defaultValue="converter" className="w-full">
             <TabsList className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-6">
               <TabsTrigger value="converter">Time Zone</TabsTrigger>
               <TabsTrigger value="timestamp">Timestamp</TabsTrigger>
-              <TabsTrigger value="current">Current Time</TabsTrigger>
-              <TabsTrigger value="relative">Relative Time</TabsTrigger>
-              <TabsTrigger value="calculator">Calculator</TabsTrigger>
-              <TabsTrigger value="formatter">Formatter</TabsTrigger>
+              <TabsTrigger value="calculator">Time Tools</TabsTrigger>
               <TabsTrigger value="api">API</TabsTrigger>
-              <TabsTrigger value="premium">Premium</TabsTrigger>
             </TabsList>
             
             <TabsContent value="converter">
@@ -38,49 +36,41 @@ const Index = () => {
               <TimestampConverter />
             </TabsContent>
             
-            <TabsContent value="current">
-              <CurrentTime />
-            </TabsContent>
-            
-            <TabsContent value="relative">
-              <RelativeTime />
-            </TabsContent>
-            
             <TabsContent value="calculator">
-              <TimeCalculator />
-            </TabsContent>
-            
-            <TabsContent value="formatter">
-              <TimeFormatter />
+              <Tabs defaultValue="calc" className="w-full">
+                <TabsList className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-4">
+                  <TabsTrigger value="calc">Calculator</TabsTrigger>
+                  <TabsTrigger value="format">Format</TabsTrigger>
+                  <TabsTrigger value="current">Current</TabsTrigger>
+                  <TabsTrigger value="relative">Relative</TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="calc">
+                  <TimeCalculator />
+                </TabsContent>
+                
+                <TabsContent value="format">
+                  <TimeFormatter />
+                </TabsContent>
+                
+                <TabsContent value="current">
+                  <CurrentTime />
+                </TabsContent>
+                
+                <TabsContent value="relative">
+                  <RelativeTime />
+                </TabsContent>
+              </Tabs>
             </TabsContent>
             
             <TabsContent value="api">
               <ApiInfo />
             </TabsContent>
-            
-            <TabsContent value="premium">
-              <div className="space-y-4 p-4 border border-purple-200 rounded-lg bg-purple-50">
-                <h2 className="text-xl font-semibold text-gray-800">Premium Services</h2>
-                <p className="text-gray-700">Upgrade to Premium for enhanced features:</p>
-                <ul className="list-disc ml-5 text-gray-600 space-y-2">
-                  <li>API access with higher rate limits</li>
-                  <li>Bulk time conversions</li>
-                  <li>No advertisements</li>
-                  <li>Advanced formatting options</li>
-                  <li>Email support</li>
-                </ul>
-                <div className="pt-4">
-                  <button className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md transition-colors">
-                    Subscribe Now
-                  </button>
-                </div>
-              </div>
-            </TabsContent>
           </Tabs>
         </div>
         
         <footer className="mt-8 text-center text-sm text-gray-500">
-          &copy; {new Date().getFullYear()} Time Utility Tools. All rights reserved.
+          &copy; {new Date().getFullYear()} Mess with Time. All rights reserved.
         </footer>
       </div>
     </div>

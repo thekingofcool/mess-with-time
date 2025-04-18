@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { formatInTimeZone } from "date-fns-tz";
 import { Button } from "@/components/ui/button";
@@ -10,7 +9,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Clock } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 
 const TimeConverter = () => {
@@ -63,31 +61,26 @@ const TimeConverter = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-center space-x-2">
-        <Clock className="w-6 h-6 text-purple-600" />
-        <h2 className="text-xl font-bold text-gray-800">Time Zone Converter</h2>
-      </div>
-
       <div className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-gray-300 mb-1">
             Input Time
           </label>
           <Input
             type="datetime-local"
             value={inputTime}
             onChange={(e) => setInputTime(e.target.value)}
-            className="w-full"
+            className="w-full bg-black/20 border-purple-500/20"
           />
         </div>
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-300 mb-1">
               Source Time Zone
             </label>
             <Select value={sourceZone} onValueChange={setSourceZone}>
-              <SelectTrigger>
+              <SelectTrigger className="bg-black/20 border-purple-500/20">
                 <SelectValue placeholder="Select source zone" />
               </SelectTrigger>
               <SelectContent>
@@ -101,11 +94,11 @@ const TimeConverter = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-300 mb-1">
               Target Time Zone
             </label>
             <Select value={targetZone} onValueChange={setTargetZone}>
-              <SelectTrigger>
+              <SelectTrigger className="bg-black/20 border-purple-500/20">
                 <SelectValue placeholder="Select target zone" />
               </SelectTrigger>
               <SelectContent>
@@ -120,19 +113,19 @@ const TimeConverter = () => {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-gray-300 mb-1">
             Converted Result
           </label>
           <div className="flex gap-2">
             <Input
               value={convertTime()}
               readOnly
-              className="bg-gray-50"
+              className="bg-black/20 border-purple-500/20"
             />
             <Button
               onClick={copyToClipboard}
               variant="outline"
-              className="shrink-0"
+              className="shrink-0 border-purple-500/20 hover:bg-purple-500/20"
             >
               Copy
             </Button>
