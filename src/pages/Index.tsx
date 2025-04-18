@@ -1,5 +1,5 @@
-
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Earth } from "lucide-react";
 import TimeConverter from "@/components/TimeConverter";
 import TimestampConverter from "@/components/TimestampConverter";
 import CurrentTime from "@/components/CurrentTime";
@@ -22,7 +22,9 @@ const Index = () => {
         <div className="bg-black/20 backdrop-blur-lg border border-purple-500/10 rounded-xl shadow-lg shadow-purple-500/10 p-6">
           <Tabs defaultValue="converter" className="w-full">
             <TabsList className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-6">
-              <TabsTrigger value="converter">Time Zone</TabsTrigger>
+              <TabsTrigger value="converter" className="flex items-center gap-2">
+                <Earth className="w-4 h-4" /> Time Zone
+              </TabsTrigger>
               <TabsTrigger value="timestamp">Timestamp</TabsTrigger>
               <TabsTrigger value="calculator">Time Tools</TabsTrigger>
               <TabsTrigger value="api">API</TabsTrigger>
