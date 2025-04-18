@@ -28,11 +28,23 @@ const TimeConverter = () => {
     "Australia/Sydney",
     "Europe/Paris",
     "America/Los_Angeles",
+    "Pacific/Auckland",
+    "Asia/Dubai",
+    "Asia/Singapore",
+    "America/Chicago",
+    "Europe/Berlin",
+    "Asia/Kolkata",
+    "Europe/Moscow",
+    "America/Sao_Paulo",
+    "Africa/Cairo",
   ];
 
   const convertTime = () => {
     try {
       const date = new Date(inputTime);
+      if (isNaN(date.getTime())) {
+        return "Invalid time format";
+      }
       const result = formatInTimeZone(date, targetZone, "yyyy-MM-dd HH:mm:ss zzz");
       return result;
     } catch (error) {
@@ -44,88 +56,86 @@ const TimeConverter = () => {
     const result = convertTime();
     navigator.clipboard.writeText(result);
     toast({
-      title: "已复制到剪贴板",
+      title: "Copied to clipboard",
       duration: 2000,
     });
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-indigo-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-md bg-white rounded-xl shadow-lg p-6 space-y-6">
-        <div className="flex items-center justify-center space-x-2">
-          <Clock className="w-6 h-6 text-purple-600" />
-          <h1 className="text-2xl font-bold text-gray-800">时间转换器</h1>
+    <div className="space-y-6">
+      <div className="flex items-center justify-center space-x-2">
+        <Clock className="w-6 h-6 text-purple-600" />
+        <h2 className="text-xl font-bold text-gray-800">Time Zone Converter</h2>
+      </div>
+
+      <div className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Input Time
+          </label>
+          <Input
+            type="datetime-local"
+            value={inputTime}
+            onChange={(e) => setInputTime(e.target.value)}
+            className="w-full"
+          />
         </div>
 
-        <div className="space-y-4">
+        <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              输入时间
+              Source Time Zone
             </label>
+            <Select value={sourceZone} onValueChange={setSourceZone}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select source zone" />
+              </SelectTrigger>
+              <SelectContent>
+                {timeZones.map((zone) => (
+                  <SelectItem key={zone} value={zone}>
+                    {zone}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Target Time Zone
+            </label>
+            <Select value={targetZone} onValueChange={setTargetZone}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select target zone" />
+              </SelectTrigger>
+              <SelectContent>
+                {timeZones.map((zone) => (
+                  <SelectItem key={zone} value={zone}>
+                    {zone}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Converted Result
+          </label>
+          <div className="flex gap-2">
             <Input
-              type="datetime-local"
-              value={inputTime}
-              onChange={(e) => setInputTime(e.target.value)}
-              className="w-full"
+              value={convertTime()}
+              readOnly
+              className="bg-gray-50"
             />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                源时区
-              </label>
-              <Select value={sourceZone} onValueChange={setSourceZone}>
-                <SelectTrigger>
-                  <SelectValue placeholder="选择源时区" />
-                </SelectTrigger>
-                <SelectContent>
-                  {timeZones.map((zone) => (
-                    <SelectItem key={zone} value={zone}>
-                      {zone}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                目标时区
-              </label>
-              <Select value={targetZone} onValueChange={setTargetZone}>
-                <SelectTrigger>
-                  <SelectValue placeholder="选择目标时区" />
-                </SelectTrigger>
-                <SelectContent>
-                  {timeZones.map((zone) => (
-                    <SelectItem key={zone} value={zone}>
-                      {zone}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              转换结果
-            </label>
-            <div className="flex gap-2">
-              <Input
-                value={convertTime()}
-                readOnly
-                className="bg-gray-50"
-              />
-              <Button
-                onClick={copyToClipboard}
-                variant="outline"
-                className="shrink-0"
-              >
-                复制
-              </Button>
-            </div>
+            <Button
+              onClick={copyToClipboard}
+              variant="outline"
+              className="shrink-0"
+            >
+              Copy
+            </Button>
           </div>
         </div>
       </div>
