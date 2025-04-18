@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { CalendarIcon } from "lucide-react";
-import { format, parse } from "date-fns";
+import { format, parse, isValid } from "date-fns";
 import { cn } from "@/lib/utils";
 
 const TimeConverter = () => {
@@ -48,11 +48,29 @@ const TimeConverter = () => {
     "Africa/Cairo",
   ];
 
+  const formatDateInput = (input: string) => {
+    const numbers = input.replace(/\D/g, '');
+    
+    if (numbers.length === 0) return '';
+    
+    if (numbers.length <= 4) {
+      return numbers;
+    } else if (numbers.length <= 6) {
+      return `${numbers.slice(0, 4)}-${numbers.slice(4)}`;
+    } else {
+      return `${numbers.slice(0, 4)}-${numbers.slice(4, 6)}-${numbers.slice(6, 8)}`;
+    }
+  };
+
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setDateInput(e.target.value);
-    const parsedDate = parse(e.target.value, 'yyyy-MM-dd', new Date());
-    if (!isNaN(parsedDate.getTime())) {
-      setDate(parsedDate);
+    const formatted = formatDateInput(e.target.value);
+    setDateInput(formatted);
+
+    if (formatted.length === 10) {
+      const parsedDate = parse(formatted, 'yyyy-MM-dd', new Date());
+      if (isValid(parsedDate)) {
+        setDate(parsedDate);
+      }
     }
   };
 
@@ -112,9 +130,10 @@ const TimeConverter = () => {
             <div className="flex items-center space-x-2">
               <Input
                 type="text"
-                placeholder="YYYY-MM-DD"
+                placeholder="YYYYMMDD"
                 value={dateInput}
                 onChange={handleDateChange}
+                maxLength={10}
                 className="flex-grow bg-black/20 border-purple-500/20 text-gray-100 focus:border-purple-500"
               />
               <Popover>
