@@ -1,4 +1,3 @@
-
 export const formatDateInput = (input: string): string => {
   if (!input) return '';
   
@@ -81,30 +80,25 @@ export const highlightPythonCode = (code: string) => {
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;");
 
-  // Function to wrap a section in a color span
-  const wrapWithColor = (match: string, color: string) => {
-    return `<span style="color: ${color}">${match}</span>`;
-  };
-
-  // Highlight strings
-  highlightedCode = highlightedCode.replace(/(["'])(.*?)(\1)/g, (match, quote, content) => 
-    `<span style="color: #F59E0B">${quote}${content}${quote}</span>`
+  // Highlight strings (fixed the regex to properly capture entire strings)
+  highlightedCode = highlightedCode.replace(/(["'])(.*?)\1/g, (match) => 
+    `<span style="color: #F59E0B">${match}</span>`
   );
   
   // Highlight comments
-  highlightedCode = highlightedCode.replace(/(#.*?)(?=\n|$)/g, match => 
+  highlightedCode = highlightedCode.replace(/(#.*?)(?=\n|$)/g, (match) => 
     `<span style="color: #9CA3AF">${match}</span>`
   );
   
   // Highlight numbers
-  highlightedCode = highlightedCode.replace(/\b(\d+)\b/g, match => 
+  highlightedCode = highlightedCode.replace(/\b(\d+)\b/g, (match) => 
     `<span style="color: #60A5FA">${match}</span>`
   );
   
   // Highlight keywords
   keywords.forEach(keyword => {
     const regex = new RegExp(`\\b(${keyword})\\b`, 'g');
-    highlightedCode = highlightedCode.replace(regex, match => 
+    highlightedCode = highlightedCode.replace(regex, (match) => 
       `<span style="color: #A78BFA">${match}</span>`
     );
   });
@@ -112,7 +106,7 @@ export const highlightPythonCode = (code: string) => {
   // Highlight built-in functions
   builtins.forEach(builtin => {
     const regex = new RegExp(`\\b(${builtin})\\b`, 'g');
-    highlightedCode = highlightedCode.replace(regex, match => 
+    highlightedCode = highlightedCode.replace(regex, (match) => 
       `<span style="color: #22D3EE">${match}</span>`
     );
   });
