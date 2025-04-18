@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { formatInTimeZone } from "date-fns-tz";
 import { Button } from "@/components/ui/button";
@@ -49,7 +48,6 @@ const TimeConverter = () => {
     "UTC",
   ];
   
-  // Format the timezone for display (remove underscores)
   const formatTimeZoneDisplay = (zone: string) => {
     return zone.replace(/_/g, ' ');
   };
@@ -134,7 +132,6 @@ const TimeConverter = () => {
       if (isNaN(date.getTime())) {
         return "Invalid time format";
       }
-      // Only show the date and time without timezone info
       const result = formatInTimeZone(date, targetZone, "yyyy-MM-dd HH:mm:ss");
       return result;
     } catch (error) {
@@ -160,30 +157,14 @@ const TimeConverter = () => {
               Date
             </label>
             <div className="flex items-center space-x-2">
-              <div className="relative flex-grow">
-                <Input
-                  type="text"
-                  placeholder="YYYY-MM-DD"
-                  value={dateInput}
-                  onChange={handleDateChange}
-                  maxLength={10}
-                  className="flex-grow bg-black/20 border-purple-500/20 text-transparent focus:border-purple-500 placeholder:text-gray-500 caret-gray-100"
-                />
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  {dateInput ? (
-                    <>
-                      <span className="text-gray-100">{dateInput}</span>
-                      {dateInput.length < 10 && (
-                        <span className="text-gray-500">
-                          {dateInput.length >= 4 ? "-MM-DD".slice(-(10 - dateInput.length)) : "YYYY".slice(dateInput.length)}
-                        </span>
-                      )}
-                    </>
-                  ) : (
-                    <span className="text-gray-500">YYYY-MM-DD</span>
-                  )}
-                </div>
-              </div>
+              <Input
+                type="text"
+                placeholder="YYYY-MM-DD"
+                value={dateInput}
+                onChange={handleDateChange}
+                maxLength={10}
+                className="w-full bg-black/20 border-purple-500/20 text-gray-100 focus:border-purple-500"
+              />
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
