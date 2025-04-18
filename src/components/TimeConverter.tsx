@@ -46,7 +46,7 @@ const TimeConverter = () => {
     "Europe/Paris",
     "Pacific/Auckland",
     "UTC",
-  ];
+  ].sort();
   
   const formatTimeZoneDisplay = (zone: string) => {
     return zone.replace(/_/g, ' ');
@@ -64,39 +64,80 @@ const TimeConverter = () => {
     if (numbers.length <= 4) {
       return numbers;
     } else if (numbers.length <= 6) {
-      const month = numbers.slice(4, 6);
+      let month = numbers.slice(4, 6);
       const firstDigit = month[0];
       
       if (parseInt(firstDigit) > 1) {
-        return `${numbers.slice(0, 4)}-0${firstDigit}`;
-      }
-      if (month.length === 2) {
+        month = `0${firstDigit}`;
+      } else if (month.length === 2) {
         const monthNum = parseInt(month);
         if (monthNum > 12) {
-          return `${numbers.slice(0, 4)}-12`;
+          month = '12';
+        } else if (monthNum === 0) {
+          month = '01';
         }
       }
+      
       return `${numbers.slice(0, 4)}-${month}`;
     } else {
       const year = parseInt(numbers.slice(0, 4));
       const month = parseInt(numbers.slice(4, 6));
-      const day = numbers.slice(6, 8);
       const maxDays = getDaysInMonth(year, month);
       
+      let day = numbers.slice(6, 8);
       const firstDayDigit = day[0];
-      let formattedDay = day;
       
       if (parseInt(firstDayDigit) > 3) {
-        formattedDay = `0${firstDayDigit}`;
+        day = `0${firstDayDigit}`;
       } else if (day.length === 2) {
         const dayNum = parseInt(day);
         if (dayNum > maxDays) {
-          formattedDay = maxDays.toString().padStart(2, '0');
+          day = maxDays.toString().padStart(2, '0');
+        } else if (dayNum === 0) {
+          day = '01';
         }
+      } else if (day.length === 1) {
+        day = day.padStart(2, '0');
       }
       
-      return `${numbers.slice(0, 4)}-${numbers.slice(4, 6)}-${formattedDay}`;
+      return `${numbers.slice(0, 4)}-${numbers.slice(4, 6).padStart(2, '0')}-${day}`;
     }
+  };
+
+  const formatTimeInput = (input: string) => {
+    const parts = input.split(':');
+    let hours = parts[0] || '00';
+    let minutes = parts[1] || '00';
+    let seconds = parts[2] || '00';
+    
+    const hoursNum = parseInt(hours);
+    if (isNaN(hoursNum) || hoursNum < 0) {
+      hours = '00';
+    } else if (hoursNum > 23) {
+      hours = '23';
+    } else {
+      hours = hoursNum.toString().padStart(2, '0');
+    }
+    
+    const minutesNum = parseInt(minutes);
+    if (isNaN(minutesNum) || minutesNum < 0) {
+      minutes = '00';
+    } else if (minutesNum > 59) {
+      minutes = '59';
+    } else {
+      minutes = minutesNum.toString().padStart(2, '0');
+    }
+    
+    const secondsNum = parseInt(seconds);
+    if (isNaN(secondsNum) || secondsNum < 0) {
+      seconds = '00';
+    } else if (secondsNum > 59) {
+      seconds = '59';
+    } else {
+      seconds = secondsNum.toString().padStart(2, '0');
+    }
+    
+    return `${hours}:${minutes}:${seconds}`;
   };
 
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -112,7 +153,8 @@ const TimeConverter = () => {
   };
 
   const handleTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setTimeInput(e.target.value);
+    const formatted = formatTimeInput(e.target.value);
+    setTimeInput(formatted);
   };
 
   const handleCalendarSelect = (selectedDate: Date | undefined) => {
@@ -200,8 +242,8 @@ const TimeConverter = () => {
               Time
             </label>
             <Input
-              type="time"
-              step="1"
+              type="text"
+              placeholder="HH:MM:SS"
               value={timeInput}
               onChange={handleTimeChange}
               className="w-full bg-black/20 border-purple-500/20 text-gray-100 focus:border-purple-500"

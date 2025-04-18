@@ -81,7 +81,7 @@ const TimestampConverter = () => {
       <div className="space-y-4">
         <div className="flex items-center gap-2">
           <Select value={timestampType} onValueChange={setTimestampType}>
-            <SelectTrigger className="w-40">
+            <SelectTrigger className="w-40 bg-black/20 border-purple-500/20 text-gray-100">
               <SelectValue placeholder="Timestamp type" />
             </SelectTrigger>
             <SelectContent>
@@ -90,13 +90,17 @@ const TimestampConverter = () => {
               <SelectItem value="iso8601">ISO 8601</SelectItem>
             </SelectContent>
           </Select>
-          <Button onClick={getCurrentTimestamp} size="sm">
+          <Button 
+            onClick={getCurrentTimestamp} 
+            size="sm" 
+            className="bg-black/20 border-purple-500/20 hover:bg-purple-500/20 text-gray-100"
+          >
             <RefreshCcw className="h-4 w-4 mr-1" /> Current
           </Button>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-gray-300 mb-1">
             Timestamp
           </label>
           <div className="flex gap-2">
@@ -104,21 +108,21 @@ const TimestampConverter = () => {
               value={timestamp}
               onChange={(e) => setTimestamp(e.target.value)}
               placeholder={timestampType === "iso8601" ? "YYYY-MM-DDTHH:MM:SSZ" : "Enter timestamp"}
-              className="flex-1"
+              className="flex-1 bg-black/20 border-purple-500/20 text-gray-100 focus:border-purple-500"
             />
             <Button
               variant="outline"
               size="icon"
               onClick={() => copyToClipboard(timestamp)}
-              className="shrink-0"
+              className="shrink-0 bg-black/20 border-purple-500/20 hover:bg-purple-500/20"
             >
-              <Copy className="h-4 w-4" />
+              <Copy className="h-4 w-4 text-gray-300" />
             </Button>
           </div>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-gray-300 mb-1">
             Human Readable Time
           </label>
           <div className="flex gap-2">
@@ -126,15 +130,15 @@ const TimestampConverter = () => {
               type="datetime-local"
               value={datetime}
               onChange={(e) => setDatetime(e.target.value)}
-              className="flex-1"
+              className="flex-1 bg-black/20 border-purple-500/20 text-gray-100 focus:border-purple-500"
             />
             <Button
               variant="outline"
               size="icon"
               onClick={() => copyToClipboard(datetime)}
-              className="shrink-0"
+              className="shrink-0 bg-black/20 border-purple-500/20 hover:bg-purple-500/20"
             >
-              <Copy className="h-4 w-4" />
+              <Copy className="h-4 w-4 text-gray-300" />
             </Button>
           </div>
         </div>
