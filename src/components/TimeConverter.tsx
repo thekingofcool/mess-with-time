@@ -17,12 +17,13 @@ import {
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { CalendarIcon } from "lucide-react";
-import { format } from "date-fns";
+import { format, parse } from "date-fns";
 import { cn } from "@/lib/utils";
 
 const TimeConverter = () => {
   const [date, setDate] = useState<Date>();
   const [timeInput, setTimeInput] = useState("00:00:00");
+  const [dateInput, setDateInput] = useState("");
   const [sourceZone, setSourceZone] = useState("UTC");
   const [targetZone, setTargetZone] = useState("Asia/Shanghai");
   const { toast } = useToast();
@@ -47,8 +48,23 @@ const TimeConverter = () => {
     "Africa/Cairo",
   ];
 
+  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setDateInput(e.target.value);
+    const parsedDate = parse(e.target.value, 'yyyy-MM-dd', new Date());
+    if (!isNaN(parsedDate.getTime())) {
+      setDate(parsedDate);
+    }
+  };
+
   const handleTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setTimeInput(e.target.value);
+  };
+
+  const handleCalendarSelect = (selectedDate: Date | undefined) => {
+    setDate(selectedDate);
+    if (selectedDate) {
+      setDateInput(format(selectedDate, 'yyyy-MM-dd'));
+    }
   };
 
   const getFullDateTime = () => {
@@ -93,29 +109,34 @@ const TimeConverter = () => {
             <label className="block text-sm font-medium text-gray-300 mb-1">
               Date
             </label>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  className={cn(
-                    "w-full justify-start text-left font-normal bg-black/20 border-purple-500/20 hover:bg-purple-500/20",
-                    !date && "text-gray-400"
-                  )}
-                >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {date ? format(date, "PPP") : <span>Pick a date</span>}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
-                <Calendar
-                  mode="single"
-                  selected={date}
-                  onSelect={setDate}
-                  initialFocus
-                  className="pointer-events-auto"
-                />
-              </PopoverContent>
-            </Popover>
+            <div className="flex items-center space-x-2">
+              <Input
+                type="text"
+                placeholder="YYYY-MM-DD"
+                value={dateInput}
+                onChange={handleDateChange}
+                className="flex-grow bg-black/20 border-purple-500/20 text-gray-100 focus:border-purple-500"
+              />
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="bg-black/20 border-purple-500/20 hover:bg-purple-500/20"
+                  >
+                    <CalendarIcon className="h-4 w-4 text-gray-300" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={date}
+                    onSelect={handleCalendarSelect}
+                    initialFocus
+                    className="pointer-events-auto"
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
           </div>
 
           <div>
