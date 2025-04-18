@@ -62,7 +62,7 @@ const TimestampConverter = () => {
       
       setConvertedResult(result);
       setTimestamp(result);
-      generatePythonCode(true, formattedDate, formattedTime);
+      generatePythonCodeToTimestamp(formattedDate, formattedTime);
     } catch (error) {
       setConvertedResult("Error converting to timestamp");
       setPythonCode("");
@@ -111,7 +111,7 @@ const TimestampConverter = () => {
       setDateInput(formattedDate);
       setTimeInput(formattedTime);
       setConvertedResult(`${formattedDate} ${formattedTime}`);
-      generatePythonCode(false, formattedDate, formattedTime);
+      generatePythonCodeFromTimestamp();
     } catch (error) {
       setConvertedResult("Error converting from timestamp");
       setPythonCode("");
@@ -144,14 +144,11 @@ const TimestampConverter = () => {
     });
   };
 
-  const generatePythonCode = (toTimestamp: boolean, date: string, time: string) => {
-    let pythonCode = '';
-    
-    if (toTimestamp) {
-      pythonCode = `
+  const generatePythonCodeToTimestamp = (dateStr: string, timeStr: string) => {
+    const pythonCode = `
 from datetime import datetime
 
-def datetime_to_timestamp(date_str="${date}", time_str="${time}", output_format="${timestampType}"):
+def datetime_to_timestamp(date_str="${dateStr}", time_str="${timeStr}", output_format="${timestampType}"):
     # Combine date and time
     dt_str = f"{date_str} {time_str}"
     
@@ -170,8 +167,12 @@ def datetime_to_timestamp(date_str="${date}", time_str="${time}", output_format=
 result = datetime_to_timestamp()
 print(f"Timestamp: {result}")
 `.trim();
-    } else {
-      pythonCode = `
+    
+    setPythonCode(pythonCode);
+  };
+  
+  const generatePythonCodeFromTimestamp = () => {
+    const pythonCode = `
 from datetime import datetime
 
 def timestamp_to_datetime(timestamp="${timestamp}", type="${timestampType}"):
@@ -188,7 +189,6 @@ def timestamp_to_datetime(timestamp="${timestamp}", type="${timestampType}"):
 result = timestamp_to_datetime()
 print(f"Datetime: {result}")
 `.trim();
-    }
     
     setPythonCode(pythonCode);
   };

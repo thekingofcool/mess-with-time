@@ -70,7 +70,7 @@ const TimeConverter = () => {
       const fullDateTime = getFullDateTime();
       if (!fullDateTime) {
         setConvertedResult("Please enter valid date and time");
-        generatePythonCode(false);
+        setPythonCode("");
         return;
       }
       
@@ -90,16 +90,16 @@ const TimeConverter = () => {
       
       if (isNaN(date.getTime())) {
         setConvertedResult("Invalid date or time format");
-        generatePythonCode(false);
+        setPythonCode("");
         return;
       }
       
       const result = formatInTimeZone(date, targetZone, "yyyy-MM-dd HH:mm:ss");
       setConvertedResult(result);
-      generatePythonCode(true, fullDateTime);
+      generatePythonCode(fullDateTime);
     } catch (error) {
       setConvertedResult("Invalid time format");
-      generatePythonCode(false);
+      setPythonCode("");
     }
   };
 
@@ -111,17 +111,12 @@ const TimeConverter = () => {
     });
   };
 
-  const generatePythonCode = (isValid: boolean, dateTimeStr?: string) => {
-    if (!isValid) {
-      setPythonCode("");
-      return;
-    }
-    
+  const generatePythonCode = (dateTimeStr: string) => {
     const pythonCode = `
 from datetime import datetime
 import pytz
 
-def convert_time(date_time_str="${dateTimeStr || ""}",
+def convert_time(date_time_str="${dateTimeStr}",
                 source_zone="${sourceZone}", target_zone="${targetZone}"):
     # Parse datetime string
     dt = datetime.strptime(date_time_str, "%Y-%m-%d %H:%M:%S")

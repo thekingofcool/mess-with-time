@@ -73,16 +73,16 @@ const CurrentTime = () => {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-center space-x-2">
-        <Clock className="w-6 h-6 text-purple-600" />
-        <h2 className="text-xl font-bold text-gray-800">Current Time</h2>
+        <Clock className="w-6 h-6 text-purple-400" />
+        <h2 className="text-xl font-bold text-white">Current Time</h2>
       </div>
 
       <div className="flex items-center justify-between mb-4">
-        <div className="text-3xl font-bold">
+        <div className="text-3xl font-bold text-white">
           {formatInTimeZone(now, selectedTimezone, "HH:mm:ss")}
         </div>
         <Select value={selectedTimezone} onValueChange={setSelectedTimezone}>
-          <SelectTrigger className="w-[180px]">
+          <SelectTrigger className="w-[180px] bg-black/20 border-purple-500/20 text-gray-100">
             <SelectValue placeholder="Time Zone" />
           </SelectTrigger>
           <SelectContent>
@@ -97,16 +97,17 @@ const CurrentTime = () => {
 
       <div className="grid gap-4">
         {formatTypes.map((type, index) => (
-          <Card key={index}>
+          <Card key={index} className="bg-black/20 border-purple-500/20">
             <CardContent className="p-4 flex justify-between items-center">
               <div>
-                <div className="text-sm text-gray-500">{type.label}</div>
-                <div className="font-mono text-sm break-all">{type.value}</div>
+                <div className="text-sm text-gray-300">{type.label}</div>
+                <div className="font-mono text-sm break-all text-gray-100">{type.value}</div>
               </div>
               <Button 
                 variant="ghost" 
                 size="icon" 
                 onClick={() => copyToClipboard(type.value)}
+                className="text-gray-300 hover:text-white"
               >
                 <Copy className="h-4 w-4" />
               </Button>

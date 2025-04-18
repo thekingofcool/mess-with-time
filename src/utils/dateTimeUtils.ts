@@ -87,14 +87,14 @@ export const formatTimeInput = (input: string) => {
   if (minutes) {
     const minutesNum = parseInt(minutes);
     if (minutesNum > 59) minutes = '59';
-    else if (minutes.length === 1 && minutesNum >= 0) minutes = minutesNum.toString().padStart(2, '0');
+    else if (minutes.length === 1 && minutesNum >= 0) minutes = minutes.toString().padStart(2, '0');
   }
   
   // Format seconds
   if (seconds) {
     const secondsNum = parseInt(seconds);
     if (secondsNum > 59) seconds = '59';
-    else if (seconds.length === 1 && secondsNum >= 0) seconds = secondsNum.toString().padStart(2, '0');
+    else if (seconds.length === 1 && secondsNum >= 0) seconds = seconds.toString().padStart(2, '0');
   }
   
   // Reconstruct the formatted time
