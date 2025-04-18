@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { formatInTimeZone } from "date-fns-tz";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -56,9 +56,34 @@ const TimeConverter = () => {
     if (numbers.length <= 4) {
       return numbers;
     } else if (numbers.length <= 6) {
-      return `${numbers.slice(0, 4)}-${numbers.slice(4)}`;
+      const month = numbers.slice(4, 6);
+      const firstDigit = month[0];
+      
+      if (parseInt(firstDigit) > 1) {
+        return `${numbers.slice(0, 4)}-0${firstDigit}`;
+      }
+      if (month.length === 2) {
+        const monthNum = parseInt(month);
+        if (monthNum > 12) {
+          return `${numbers.slice(0, 4)}-12`;
+        }
+      }
+      return `${numbers.slice(0, 4)}-${month}`;
     } else {
-      return `${numbers.slice(0, 4)}-${numbers.slice(4, 6)}-${numbers.slice(6, 8)}`;
+      const day = numbers.slice(6, 8);
+      const firstDayDigit = day[0];
+      let formattedDay = day;
+      
+      if (parseInt(firstDayDigit) > 3) {
+        formattedDay = `0${firstDayDigit}`;
+      } else if (day.length === 2) {
+        const dayNum = parseInt(day);
+        if (dayNum > 31) {
+          formattedDay = '31';
+        }
+      }
+      
+      return `${numbers.slice(0, 4)}-${numbers.slice(4, 6)}-${formattedDay}`;
     }
   };
 
@@ -128,14 +153,25 @@ const TimeConverter = () => {
               Date
             </label>
             <div className="flex items-center space-x-2">
-              <Input
-                type="text"
-                placeholder="YYYYMMDD"
-                value={dateInput}
-                onChange={handleDateChange}
-                maxLength={10}
-                className="flex-grow bg-black/20 border-purple-500/20 text-gray-100 focus:border-purple-500"
-              />
+              <div className="relative flex-grow">
+                <Input
+                  type="text"
+                  placeholder="YYYY-MM-DD"
+                  value={dateInput}
+                  onChange={handleDateChange}
+                  maxLength={10}
+                  className="flex-grow bg-black/20 border-purple-500/20 text-gray-100 focus:border-purple-500 placeholder:text-gray-500"
+                />
+                {dateInput && dateInput.length < 10 && (
+                  <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <span className="text-gray-100">{dateInput}</span>
+                    <span className="text-gray-500">
+                      {dateInput.length >= 4 ? "-MM-DD" : "YYYY".slice(dateInput.length)}
+                      {dateInput.length > 4 && dateInput.length <= 7 ? "-DD" : ""}
+                    </span>
+                  </span>
+                )}
+              </div>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
