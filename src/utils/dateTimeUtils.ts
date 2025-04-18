@@ -82,34 +82,34 @@ export const highlightPythonCode = (code: string) => {
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;");
   
-  // Create a temporary DOM element to safely manipulate HTML
-  const tempDiv = document.createElement('div');
-  tempDiv.textContent = highlightedCode;
-  highlightedCode = tempDiv.innerHTML;
+  // Use a safer approach for highlighting that doesn't get confused by nested spans
   
-  // Highlight strings - using a different approach to avoid nested spans
-  highlightedCode = highlightedCode.replace(/(["'])(.*?)\1/g, '<span style="color: #F59E0B;">$1$2$1</span>');
+  // First, wrap all the code in a container span
+  highlightedCode = `<span>${highlightedCode}</span>`;
+  
+  // Highlight strings - special handling to avoid nesting issues
+  highlightedCode = highlightedCode.replace(/(["'])(.*?)(\1)/g, '<span style="color: #F59E0B;">$1$2$3</span>');
   
   // Highlight comments
-  highlightedCode = highlightedCode.replace(/(#.*$)/gm, '<span style="color: #9CA3AF;">$1</span>');
+  highlightedCode = highlightedCode.replace(/(#.*?)(?=<\/span>|$)/g, '<span style="color: #9CA3AF;">$1</span>');
   
   // Highlight numbers
   highlightedCode = highlightedCode.replace(/\b(\d+)\b/g, '<span style="color: #60A5FA;">$1</span>');
   
   // Highlight keywords
   keywords.forEach(keyword => {
-    const regex = new RegExp(`\\b${keyword}\\b`, 'g');
-    highlightedCode = highlightedCode.replace(regex, `<span style="color: #A78BFA;">${keyword}</span>`);
+    const regex = new RegExp(`\\b(${keyword})\\b`, 'g');
+    highlightedCode = highlightedCode.replace(regex, `<span style="color: #A78BFA;">$1</span>`);
   });
   
   // Highlight built-in functions
   builtins.forEach(builtin => {
-    const regex = new RegExp(`\\b${builtin}\\b`, 'g');
-    highlightedCode = highlightedCode.replace(regex, `<span style="color: #22D3EE;">${builtin}</span>`);
+    const regex = new RegExp(`\\b(${builtin})\\b`, 'g');
+    highlightedCode = highlightedCode.replace(regex, `<span style="color: #22D3EE;">$1</span>`);
   });
   
   // Highlight function definitions
-  highlightedCode = highlightedCode.replace(/def\s+(\w+)(?=\()/g, 'def <span style="color: #34D399;">$1</span>');
+  highlightedCode = highlightedCode.replace(/(def\s+)(\w+)(?=\()/g, '$1<span style="color: #34D399;">$2</span>');
   
   return highlightedCode;
 };
