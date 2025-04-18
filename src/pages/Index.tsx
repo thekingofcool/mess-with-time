@@ -16,7 +16,7 @@ const Index = () => {
           <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-cyan-400 mb-2">
             Mess with Time
           </h1>
-          <p className="text-gray-400">Manipulate time at your will</p>
+          <p className="text-gray-300">Manipulate time at your will</p>
         </header>
         
         <div className="bg-black/20 backdrop-blur-lg border border-purple-500/10 rounded-xl shadow-lg shadow-purple-500/10 p-6">
@@ -69,7 +69,7 @@ const Index = () => {
           </Tabs>
         </div>
         
-        <footer className="mt-8 text-center text-sm text-gray-500">
+        <footer className="mt-8 text-center text-sm text-gray-400">
           &copy; {new Date().getFullYear()} Mess with Time. All rights reserved.
         </footer>
       </div>

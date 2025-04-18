@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/use-toast";
+import { formatDateInput, formatTimeInput, parseDateTime, highlightPythonCode } from "@/utils/dateTimeUtils";
 
 const TimeCalculator = () => {
   // For time difference calculation
@@ -33,117 +34,6 @@ const TimeCalculator = () => {
   const [addPythonCode, setAddPythonCode] = useState<string>("");
   
   const { toast } = useToast();
-
-  const formatDateInput = (input: string) => {
-    // Remove non-numeric characters except hyphens
-    let formattedInput = input.replace(/[^\d-]/g, '');
-    
-    // Split by hyphens to get year, month, day
-    const parts = formattedInput.split('-');
-    let year = parts[0] || '';
-    let month = parts.length > 1 ? parts[1] : '';
-    let day = parts.length > 2 ? parts[2] : '';
-    
-    // Ensure year, month and day don't exceed their limits
-    if (year.length > 4) year = year.slice(0, 4);
-    if (month.length > 2) month = month.slice(0, 2);
-    if (day.length > 2) day = day.slice(0, 2);
-    
-    // Format month
-    if (month) {
-      const monthNum = parseInt(month);
-      if (monthNum > 12) month = '12';
-      else if (monthNum === 0) month = '01';
-      else if (month.length === 1 && monthNum > 0) month = monthNum.toString().padStart(2, '0');
-    }
-    
-    // Format day based on month
-    if (day) {
-      const dayNum = parseInt(day);
-      const monthNum = parseInt(month) || 0;
-      let maxDays = 31;
-      
-      // Determine max days for the month
-      if (monthNum === 2) {
-        // February (simple leap year check)
-        const yearNum = parseInt(year) || new Date().getFullYear();
-        maxDays = ((yearNum % 4 === 0 && yearNum % 100 !== 0) || yearNum % 400 === 0) ? 29 : 28;
-      } else if ([4, 6, 9, 11].includes(monthNum)) {
-        // April, June, September, November have 30 days
-        maxDays = 30;
-      }
-      
-      if (dayNum > maxDays) day = maxDays.toString();
-      else if (dayNum === 0) day = '01';
-      else if (day.length === 1 && dayNum > 0) day = dayNum.toString().padStart(2, '0');
-    }
-    
-    // Reconstruct the formatted date
-    let result = year;
-    if (month) result += result ? '-' + month : month;
-    if (day) result += result && month ? '-' + day : day;
-    
-    return result;
-  };
-
-  const formatTimeInput = (input: string) => {
-    // Remove non-numeric characters except colons
-    let formattedInput = input.replace(/[^\d:]/g, '');
-    
-    // Split by colons to get hours, minutes, seconds
-    const parts = formattedInput.split(':');
-    let hours = parts[0] || '';
-    let minutes = parts.length > 1 ? parts[1] : '';
-    let seconds = parts.length > 2 ? parts[2] : '';
-    
-    // Ensure hours, minutes, seconds don't exceed their limits
-    if (hours.length > 2) hours = hours.slice(0, 2);
-    if (minutes.length > 2) minutes = minutes.slice(0, 2);
-    if (seconds.length > 2) seconds = seconds.slice(0, 2);
-    
-    // Format hours
-    if (hours) {
-      const hoursNum = parseInt(hours);
-      if (hoursNum > 23) hours = '23';
-      else if (hours.length === 1 && hoursNum >= 0) hours = hoursNum.toString().padStart(2, '0');
-    }
-    
-    // Format minutes
-    if (minutes) {
-      const minutesNum = parseInt(minutes);
-      if (minutesNum > 59) minutes = '59';
-      else if (minutes.length === 1 && minutesNum >= 0) minutes = minutesNum.toString().padStart(2, '0');
-    }
-    
-    // Format seconds
-    if (seconds) {
-      const secondsNum = parseInt(seconds);
-      if (secondsNum > 59) seconds = '59';
-      else if (seconds.length === 1 && secondsNum >= 0) seconds = secondsNum.toString().padStart(2, '0');
-    }
-    
-    // Reconstruct the formatted time
-    let result = hours;
-    if (minutes) result += result ? ':' + minutes : minutes;
-    if (seconds) result += result && minutes ? ':' + seconds : seconds;
-    
-    return result;
-  };
-
-  const parseDateTime = (dateStr: string, timeStr: string) => {
-    if (!dateStr || !timeStr) return null;
-    
-    const formattedDate = formatDateInput(dateStr);
-    const formattedTime = formatTimeInput(timeStr);
-    
-    if (formattedDate.length < 10 || !formattedTime) return null;
-    
-    const [year, month, day] = formattedDate.split('-').map(Number);
-    const [hours, minutes, seconds] = formattedTime.split(':').map(Number);
-    
-    // Month is 0-indexed in JavaScript Date
-    return new Date(year, month - 1, day, hours, minutes, seconds);
-  };
 
   const calculateDifference = () => {
     try {
@@ -305,9 +195,9 @@ print(f"Result: {result}")
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-center space-x-2">
-        <Calculator className="w-6 h-6 text-purple-600" />
-        <h2 className="text-xl font-bold text-gray-800">Time Calculator</h2>
+      <div className="flex items-center justify-center space-x-2 mb-4">
+        <Calculator className="w-6 h-6 text-purple-400" />
+        <h2 className="text-xl font-bold text-white">Time Calculator</h2>
       </div>
 
       <Tabs defaultValue="difference">
@@ -320,11 +210,11 @@ print(f"Result: {result}")
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-1">
-                Start Date (YYYY-MM-DD)
+                Start Date (yyyy-MM-dd)
               </label>
               <Input
                 type="text"
-                placeholder="YYYY-MM-DD"
+                placeholder="yyyy-MM-dd"
                 value={startDateInput}
                 onChange={(e) => setStartDateInput(e.target.value)}
                 onBlur={() => setStartDateInput(formatDateInput(startDateInput))}
@@ -334,11 +224,11 @@ print(f"Result: {result}")
             
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-1">
-                Start Time (HH:MM:SS)
+                Start Time (HH:mm:ss)
               </label>
               <Input
                 type="text"
-                placeholder="HH:MM:SS"
+                placeholder="HH:mm:ss"
                 value={startTimeInput}
                 onChange={(e) => setStartTimeInput(e.target.value)}
                 onBlur={() => setStartTimeInput(formatTimeInput(startTimeInput))}
@@ -350,11 +240,11 @@ print(f"Result: {result}")
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-1">
-                End Date (YYYY-MM-DD)
+                End Date (yyyy-MM-dd)
               </label>
               <Input
                 type="text"
-                placeholder="YYYY-MM-DD"
+                placeholder="yyyy-MM-dd"
                 value={endDateInput}
                 onChange={(e) => setEndDateInput(e.target.value)}
                 onBlur={() => setEndDateInput(formatDateInput(endDateInput))}
@@ -364,11 +254,11 @@ print(f"Result: {result}")
             
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-1">
-                End Time (HH:MM:SS)
+                End Time (HH:mm:ss)
               </label>
               <Input
                 type="text"
-                placeholder="HH:MM:SS"
+                placeholder="HH:mm:ss"
                 value={endTimeInput}
                 onChange={(e) => setEndTimeInput(e.target.value)}
                 onBlur={() => setEndTimeInput(formatTimeInput(endTimeInput))}
@@ -409,8 +299,8 @@ print(f"Result: {result}")
                 Python Code
               </label>
               <div className="relative">
-                <pre className="bg-black/30 rounded-md p-4 text-gray-200 text-xs overflow-auto">
-                  {diffPythonCode}
+                <pre className="bg-black/30 rounded-md p-4 overflow-auto">
+                  <div className="text-gray-200 text-xs" dangerouslySetInnerHTML={{ __html: highlightPythonCode(diffPythonCode) }} />
                 </pre>
                 <Button
                   onClick={() => copyPythonCode(diffPythonCode)}
@@ -428,11 +318,11 @@ print(f"Result: {result}")
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-1">
-                Base Date (YYYY-MM-DD)
+                Base Date (yyyy-MM-dd)
               </label>
               <Input
                 type="text"
-                placeholder="YYYY-MM-DD"
+                placeholder="yyyy-MM-dd"
                 value={baseDateInput}
                 onChange={(e) => setBaseDateInput(e.target.value)}
                 onBlur={() => setBaseDateInput(formatDateInput(baseDateInput))}
@@ -442,11 +332,11 @@ print(f"Result: {result}")
             
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-1">
-                Base Time (HH:MM:SS)
+                Base Time (HH:mm:ss)
               </label>
               <Input
                 type="text"
-                placeholder="HH:MM:SS"
+                placeholder="HH:mm:ss"
                 value={baseTimeInput}
                 onChange={(e) => setBaseTimeInput(e.target.value)}
                 onBlur={() => setBaseTimeInput(formatTimeInput(baseTimeInput))}
@@ -531,8 +421,8 @@ print(f"Result: {result}")
                 Python Code
               </label>
               <div className="relative">
-                <pre className="bg-black/30 rounded-md p-4 text-gray-200 text-xs overflow-auto">
-                  {addPythonCode}
+                <pre className="bg-black/30 rounded-md p-4 overflow-auto">
+                  <div className="text-gray-200 text-xs" dangerouslySetInnerHTML={{ __html: highlightPythonCode(addPythonCode) }} />
                 </pre>
                 <Button
                   onClick={() => copyPythonCode(addPythonCode)}

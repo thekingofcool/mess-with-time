@@ -29,81 +29,84 @@ const ApiInfo = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-center space-x-2">
-        <Globe className="w-6 h-6 text-purple-600" />
-        <h2 className="text-xl font-bold text-gray-800">API Access</h2>
+      <div className="flex items-center justify-center space-x-2 mb-4">
+        <Globe className="w-6 h-6 text-purple-400" />
+        <h2 className="text-xl font-bold text-white">API Access</h2>
       </div>
 
-      <div className="p-4 bg-gray-50 rounded-lg">
-        <h3 className="text-lg font-semibold mb-2">API Endpoints</h3>
+      <div className="p-4 bg-black/20 rounded-lg">
+        <h3 className="text-lg font-semibold mb-2 text-white">API Endpoints</h3>
         
         <div className="space-y-4">
           <div>
             <div className="flex justify-between items-center mb-1">
-              <div className="font-medium">Current Time</div>
+              <div className="font-medium text-gray-200">Current Time</div>
               <Button 
                 variant="ghost" 
                 size="sm" 
-                onClick={() => copyToClipboard("https://api.timetools.io/v1/current")}
+                onClick={() => copyToClipboard("https://messwithtime.com/api/v1/current")}
+                className="text-gray-300 hover:text-white"
               >
                 <Copy className="h-4 w-4" />
               </Button>
             </div>
-            <div className="bg-gray-100 p-2 rounded text-sm font-mono">
-              GET https://api.timetools.io/v1/current
+            <div className="bg-black/30 p-2 rounded text-sm font-mono text-gray-300">
+              GET https://messwithtime.com/api/v1/current
             </div>
           </div>
           
           <div>
             <div className="flex justify-between items-center mb-1">
-              <div className="font-medium">Convert Timestamp</div>
+              <div className="font-medium text-gray-200">Convert Timestamp</div>
               <Button 
                 variant="ghost" 
                 size="sm" 
-                onClick={() => copyToClipboard("https://api.timetools.io/v1/convert?timestamp=1618840800")}
+                onClick={() => copyToClipboard("https://messwithtime.com/api/v1/convert?timestamp=1618840800")}
+                className="text-gray-300 hover:text-white"
               >
                 <Copy className="h-4 w-4" />
               </Button>
             </div>
-            <div className="bg-gray-100 p-2 rounded text-sm font-mono">
-              GET https://api.timetools.io/v1/convert?timestamp=1618840800
+            <div className="bg-black/30 p-2 rounded text-sm font-mono text-gray-300">
+              GET https://messwithtime.com/api/v1/convert?timestamp=1618840800
             </div>
           </div>
           
           <div>
             <div className="flex justify-between items-center mb-1">
-              <div className="font-medium">Time Zone Conversion</div>
+              <div className="font-medium text-gray-200">Time Zone Conversion</div>
               <Button 
                 variant="ghost" 
                 size="sm" 
-                onClick={() => copyToClipboard("https://api.timetools.io/v1/timezone?time=2023-04-19T15:30:00&from=UTC&to=America/New_York")}
+                onClick={() => copyToClipboard("https://messwithtime.com/api/v1/timezone?time=2023-04-19T15:30:00&from=UTC&to=America/New_York")}
+                className="text-gray-300 hover:text-white"
               >
                 <Copy className="h-4 w-4" />
               </Button>
             </div>
-            <div className="bg-gray-100 p-2 rounded text-sm font-mono break-all">
-              GET https://api.timetools.io/v1/timezone?time=2023-04-19T15:30:00&from=UTC&to=America/New_York
+            <div className="bg-black/30 p-2 rounded text-sm font-mono break-all text-gray-300">
+              GET https://messwithtime.com/api/v1/timezone?time=2023-04-19T15:30:00&from=UTC&to=America/New_York
             </div>
           </div>
         </div>
       </div>
 
-      <div className="bg-purple-50 border border-purple-100 rounded-lg p-4">
+      <div className="bg-purple-900/20 border border-purple-500/20 rounded-lg p-4">
         <div className="flex items-center mb-4">
-          <Key className="text-purple-600 mr-2 h-5 w-5" />
-          <h3 className="text-lg font-semibold">Your API Key</h3>
+          <Key className="text-purple-400 mr-2 h-5 w-5" />
+          <h3 className="text-lg font-semibold text-white">Your API Key</h3>
         </div>
         
         {!apiKey ? (
           <div className="space-y-4">
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-gray-300">
               Generate a demo API key to test our endpoints with limited usage, or upgrade to Premium for increased limits.
             </p>
             <div className="flex space-x-2">
-              <Button variant="outline" onClick={generateDemoKey}>
+              <Button variant="outline" onClick={generateDemoKey} className="border-purple-500/20 text-gray-100 hover:bg-purple-500/20">
                 Generate Demo Key
               </Button>
-              <Button>
+              <Button className="bg-gradient-to-r from-purple-500 to-pink-500 text-white">
                 Upgrade to Premium
                 <ChevronRight className="ml-1 h-4 w-4" />
               </Button>
@@ -115,16 +118,17 @@ const ApiInfo = () => {
               <Input 
                 value={apiKey} 
                 readOnly 
-                className="font-mono text-sm bg-white"
+                className="font-mono text-sm bg-black/20 border-purple-500/20 text-gray-100"
               />
               <Button 
                 variant="outline" 
                 onClick={() => copyToClipboard(apiKey)}
+                className="border-purple-500/20 hover:bg-purple-500/20"
               >
-                <Copy className="h-4 w-4" />
+                <Copy className="h-4 w-4 text-gray-300" />
               </Button>
             </div>
-            <div className="text-sm text-gray-600">
+            <div className="text-sm text-gray-300">
               <p className="mb-1">Usage limits:</p>
               <ul className="list-disc list-inside">
                 <li>60 requests/hour</li>
@@ -132,7 +136,7 @@ const ApiInfo = () => {
                 <li>No commercial use</li>
               </ul>
             </div>
-            <Button variant="default">
+            <Button variant="default" className="bg-gradient-to-r from-purple-500 to-pink-500 text-white">
               Upgrade to Premium
               <ChevronRight className="ml-1 h-4 w-4" />
             </Button>
@@ -140,13 +144,13 @@ const ApiInfo = () => {
         )}
       </div>
 
-      <div className="border-t border-gray-200 pt-4">
-        <h3 className="text-lg font-semibold mb-3">Documentation</h3>
-        <p className="text-sm text-gray-600 mb-4">
+      <div className="border-t border-purple-500/20 pt-4">
+        <h3 className="text-lg font-semibold mb-3 text-white">Documentation</h3>
+        <p className="text-sm text-gray-300 mb-4">
           For detailed API documentation, including all endpoints, parameters, and response formats, 
           please visit our comprehensive API reference.
         </p>
-        <Button variant="outline" className="w-full">
+        <Button variant="outline" className="w-full border-purple-500/20 text-gray-100 hover:bg-purple-500/20">
           View Full API Documentation
         </Button>
       </div>
