@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { formatInTimeZone } from "date-fns-tz";
 import { Button } from "@/components/ui/button";
@@ -29,24 +30,29 @@ const TimeConverter = () => {
   const { toast } = useToast();
 
   const timeZones = [
-    "UTC",
-    "Asia/Shanghai",
+    "Africa/Cairo",
+    "America/Chicago",
+    "America/Los_Angeles",
     "America/New_York",
-    "Europe/London",
+    "America/Sao_Paulo",
+    "Asia/Dubai",
+    "Asia/Kolkata",
+    "Asia/Shanghai",
+    "Asia/Singapore",
     "Asia/Tokyo",
     "Australia/Sydney",
-    "Europe/Paris",
-    "America/Los_Angeles",
-    "Pacific/Auckland",
-    "Asia/Dubai",
-    "Asia/Singapore",
-    "America/Chicago",
     "Europe/Berlin",
-    "Asia/Kolkata",
+    "Europe/London",
     "Europe/Moscow",
-    "America/Sao_Paulo",
-    "Africa/Cairo",
+    "Europe/Paris",
+    "Pacific/Auckland",
+    "UTC",
   ];
+  
+  // Format the timezone for display (remove underscores)
+  const formatTimeZoneDisplay = (zone: string) => {
+    return zone.replace(/_/g, ' ');
+  };
 
   const formatDateInput = (input: string) => {
     const numbers = input.replace(/\D/g, '');
@@ -128,7 +134,8 @@ const TimeConverter = () => {
       if (isNaN(date.getTime())) {
         return "Invalid time format";
       }
-      const result = formatInTimeZone(date, targetZone, "yyyy-MM-dd HH:mm:ss zzz");
+      // Only show the date and time without timezone info
+      const result = formatInTimeZone(date, targetZone, "yyyy-MM-dd HH:mm:ss");
       return result;
     } catch (error) {
       return "Invalid time format";
@@ -160,17 +167,22 @@ const TimeConverter = () => {
                   value={dateInput}
                   onChange={handleDateChange}
                   maxLength={10}
-                  className="flex-grow bg-black/20 border-purple-500/20 text-gray-100 focus:border-purple-500 placeholder:text-gray-500"
+                  className="flex-grow bg-black/20 border-purple-500/20 text-transparent focus:border-purple-500 placeholder:text-gray-500 caret-gray-100"
                 />
-                {dateInput && dateInput.length < 10 && (
-                  <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <span className="text-gray-100">{dateInput}</span>
-                    <span className="text-gray-500">
-                      {dateInput.length >= 4 ? "-MM-DD" : "YYYY".slice(dateInput.length)}
-                      {dateInput.length > 4 && dateInput.length <= 7 ? "-DD" : ""}
-                    </span>
-                  </span>
-                )}
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  {dateInput ? (
+                    <>
+                      <span className="text-gray-100">{dateInput}</span>
+                      {dateInput.length < 10 && (
+                        <span className="text-gray-500">
+                          {dateInput.length >= 4 ? "-MM-DD".slice(-(10 - dateInput.length)) : "YYYY".slice(dateInput.length)}
+                        </span>
+                      )}
+                    </>
+                  ) : (
+                    <span className="text-gray-500">YYYY-MM-DD</span>
+                  )}
+                </div>
               </div>
               <Popover>
                 <PopoverTrigger asChild>
@@ -220,7 +232,7 @@ const TimeConverter = () => {
               <SelectContent>
                 {timeZones.map((zone) => (
                   <SelectItem key={zone} value={zone}>
-                    {zone}
+                    {formatTimeZoneDisplay(zone)}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -238,7 +250,7 @@ const TimeConverter = () => {
               <SelectContent>
                 {timeZones.map((zone) => (
                   <SelectItem key={zone} value={zone}>
-                    {zone}
+                    {formatTimeZoneDisplay(zone)}
                   </SelectItem>
                 ))}
               </SelectContent>
