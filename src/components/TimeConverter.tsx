@@ -16,7 +16,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, Copy, Code } from "lucide-react";
 import { format, parse, isValid } from "date-fns";
 import { cn } from "@/lib/utils";
 
@@ -61,81 +61,57 @@ const TimeConverter = () => {
     
     if (numbers.length === 0) return '';
     
-    if (numbers.length <= 4) {
-      return numbers;
-    } else if (numbers.length <= 6) {
-      let month = numbers.slice(4, 6);
-      const firstDigit = month[0];
-      
-      if (parseInt(firstDigit) > 1) {
-        month = `0${firstDigit}`;
-      } else if (month.length === 2) {
-        const monthNum = parseInt(month);
-        if (monthNum > 12) {
-          month = '12';
-        } else if (monthNum === 0) {
-          month = '01';
-        }
-      }
-      
-      return `${numbers.slice(0, 4)}-${month}`;
+    let year = '', month = '', day = '';
+    
+    if (numbers.length >= 4) {
+      year = numbers.slice(0, 4);
     } else {
-      const year = parseInt(numbers.slice(0, 4));
-      const month = parseInt(numbers.slice(4, 6));
-      const maxDays = getDaysInMonth(year, month);
-      
-      let day = numbers.slice(6, 8);
-      const firstDayDigit = day[0];
-      
-      if (parseInt(firstDayDigit) > 3) {
-        day = `0${firstDayDigit}`;
-      } else if (day.length === 2) {
-        const dayNum = parseInt(day);
-        if (dayNum > maxDays) {
-          day = maxDays.toString().padStart(2, '0');
-        } else if (dayNum === 0) {
-          day = '01';
-        }
-      } else if (day.length === 1) {
-        day = day.padStart(2, '0');
-      }
-      
-      return `${numbers.slice(0, 4)}-${numbers.slice(4, 6).padStart(2, '0')}-${day}`;
+      return numbers;
     }
+    
+    if (numbers.length > 4) {
+      month = numbers.slice(4, 6);
+      const monthNum = parseInt(month);
+      if (monthNum > 12) month = '12';
+      else if (monthNum === 0) month = '01';
+      else month = monthNum.toString().padStart(2, '0');
+    }
+    
+    if (numbers.length > 6) {
+      day = numbers.slice(6, 8);
+      const dayNum = parseInt(day);
+      const monthNum = parseInt(month);
+      const yearNum = parseInt(year);
+      
+      const daysInMonth = new Date(yearNum, monthNum, 0).getDate();
+      
+      if (dayNum > daysInMonth) day = daysInMonth.toString();
+      else if (dayNum === 0) day = '01';
+      else day = dayNum.toString().padStart(2, '0');
+    }
+    
+    let result = year;
+    if (month) result += '-' + month;
+    if (day) result += '-' + day;
+    
+    return result;
   };
 
   const formatTimeInput = (input: string) => {
-    const parts = input.split(':');
+    const cleanInput = input.replace(/[^\d:]/g, '');
+    const parts = cleanInput.split(':');
     let hours = parts[0] || '00';
     let minutes = parts[1] || '00';
     let seconds = parts[2] || '00';
     
     const hoursNum = parseInt(hours);
-    if (isNaN(hoursNum) || hoursNum < 0) {
-      hours = '00';
-    } else if (hoursNum > 23) {
-      hours = '23';
-    } else {
-      hours = hoursNum.toString().padStart(2, '0');
-    }
+    hours = (hoursNum >= 0 && hoursNum < 24) ? hoursNum.toString().padStart(2, '0') : '00';
     
     const minutesNum = parseInt(minutes);
-    if (isNaN(minutesNum) || minutesNum < 0) {
-      minutes = '00';
-    } else if (minutesNum > 59) {
-      minutes = '59';
-    } else {
-      minutes = minutesNum.toString().padStart(2, '0');
-    }
+    minutes = (minutesNum >= 0 && minutesNum < 60) ? minutesNum.toString().padStart(2, '0') : '00';
     
     const secondsNum = parseInt(seconds);
-    if (isNaN(secondsNum) || secondsNum < 0) {
-      seconds = '00';
-    } else if (secondsNum > 59) {
-      seconds = '59';
-    } else {
-      seconds = secondsNum.toString().padStart(2, '0');
-    }
+    seconds = (secondsNum >= 0 && secondsNum < 60) ? secondsNum.toString().padStart(2, '0') : '00';
     
     return `${hours}:${minutes}:${seconds}`;
   };
@@ -198,6 +174,43 @@ const TimeConverter = () => {
     });
   };
 
+  const generatePythonCode = () => {
+    const pythonCode = `
+from datetime import datetime
+import pytz
+
+def convert_time(date_str="${dateInput}", time_str="${timeInput}", 
+                source_zone="${sourceZone}", target_zone="${targetZone}"):
+    # Combine date and time
+    dt_str = f"{date_str} {time_str}"
+    
+    # Create datetime object
+    dt = datetime.strptime(dt_str, "%Y-%m-%d %H:%M:%S")
+    
+    # Localize the datetime to source timezone
+    source_tz = pytz.timezone(source_zone)
+    localized_dt = source_tz.localize(dt)
+    
+    # Convert to target timezone
+    target_tz = pytz.timezone(target_zone)
+    converted_dt = localized_dt.astimezone(target_tz)
+    
+    # Format the result
+    return converted_dt.strftime("%Y-%m-%d %H:%M:%S")
+
+# Example usage
+result = convert_time()
+print(f"Converted time: {result}")
+    `.trim();
+
+    navigator.clipboard.writeText(pythonCode);
+    toast({
+      title: "Python code copied to clipboard",
+      description: "The code has been copied and can be used in your Python environment.",
+      duration: 3000,
+    });
+  };
+
   return (
     <div className="space-y-6">
       <div className="space-y-4">
@@ -211,7 +224,7 @@ const TimeConverter = () => {
                 type="text"
                 placeholder="YYYY-MM-DD"
                 value={dateInput}
-                onChange={handleDateChange}
+                onChange={(e) => setDateInput(formatDateInput(e.target.value))}
                 maxLength={10}
                 className="w-full bg-black/20 border-purple-500/20 text-gray-100 focus:border-purple-500"
               />
@@ -245,7 +258,7 @@ const TimeConverter = () => {
               type="text"
               placeholder="HH:MM:SS"
               value={timeInput}
-              onChange={handleTimeChange}
+              onChange={(e) => setTimeInput(formatTimeInput(e.target.value))}
               className="w-full bg-black/20 border-purple-500/20 text-gray-100 focus:border-purple-500"
             />
           </div>
@@ -287,6 +300,17 @@ const TimeConverter = () => {
               </SelectContent>
             </Select>
           </div>
+        </div>
+
+        <div className="flex justify-between items-center">
+          <Button
+            onClick={generatePythonCode}
+            variant="outline"
+            className="bg-black/20 border-purple-500/20 hover:bg-purple-500/20 text-gray-100"
+          >
+            <Code className="h-4 w-4 mr-2" />
+            Generate Python Code
+          </Button>
         </div>
 
         <div>

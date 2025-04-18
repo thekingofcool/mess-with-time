@@ -1,9 +1,8 @@
-
 import { useState, useEffect } from "react";
 import { format, fromUnixTime } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowUpDown, Copy, RefreshCcw } from "lucide-react";
+import { ArrowUpDown, Copy, RefreshCcw, Code } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { 
   Select, 
@@ -19,24 +18,55 @@ const TimestampConverter = () => {
   const [timestampType, setTimestampType] = useState<string>("seconds");
   const { toast } = useToast();
 
-  // Update human-readable time when timestamp changes
+  const formatDateTime = (input: string) => {
+    const [datePart, timePart] = input.split('T');
+    if (!timePart) return input;
+    
+    return `${datePart} ${timePart}`;
+  };
+
+  const generatePythonCode = () => {
+    const pythonCode = `
+from datetime import datetime
+import time
+
+def convert_timestamp(timestamp="${timestamp}", type="${timestampType}"):
+    if type == "milliseconds":
+        ts = int(timestamp) / 1000
+    elif type == "seconds":
+        ts = int(timestamp)
+    else:  # ISO 8601
+        return datetime.fromisoformat(timestamp).strftime("%Y-%m-%d %H:%M:%S")
+    
+    return datetime.fromtimestamp(ts).strftime("%Y-%m-%d %H:%M:%S")
+
+# Example usage
+result = convert_timestamp()
+print(f"Converted time: {result}")
+    `.trim();
+
+    navigator.clipboard.writeText(pythonCode);
+    toast({
+      title: "Python code copied to clipboard",
+      description: "The code has been copied and can be used in your Python environment.",
+      duration: 3000,
+    });
+  };
+
   useEffect(() => {
     if (timestamp) {
       try {
         const ts = parseInt(timestamp);
         if (!isNaN(ts)) {
-          // Convert to seconds if in milliseconds
           const tsInSeconds = timestampType === "milliseconds" ? ts / 1000 : ts;
           const date = fromUnixTime(tsInSeconds);
           setDatetime(format(date, "yyyy-MM-dd'T'HH:mm"));
         }
       } catch (error) {
-        // Handle parsing errors
       }
     }
   }, [timestamp, timestampType]);
 
-  // Update timestamp when datetime changes
   useEffect(() => {
     if (datetime) {
       try {
@@ -46,7 +76,6 @@ const TimestampConverter = () => {
           setTimestamp(timestampType === "milliseconds" ? String(ts * 1000) : String(ts));
         }
       } catch (error) {
-        // Handle parsing errors
       }
     }
   }, [datetime, timestampType]);
@@ -135,12 +164,23 @@ const TimestampConverter = () => {
             <Button
               variant="outline"
               size="icon"
-              onClick={() => copyToClipboard(datetime)}
+              onClick={() => copyToClipboard(formatDateTime(datetime))}
               className="shrink-0 bg-black/20 border-purple-500/20 hover:bg-purple-500/20"
             >
               <Copy className="h-4 w-4 text-gray-300" />
             </Button>
           </div>
+        </div>
+
+        <div className="flex justify-end">
+          <Button
+            onClick={generatePythonCode}
+            variant="outline"
+            className="bg-black/20 border-purple-500/20 hover:bg-purple-500/20 text-gray-100"
+          >
+            <Code className="h-4 w-4 mr-2" />
+            Generate Python Code
+          </Button>
         </div>
       </div>
     </div>
