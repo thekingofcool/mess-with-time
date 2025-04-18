@@ -1,108 +1,128 @@
-
 /**
  * Utility functions for consistent date and time formatting and validation
  */
 
 /**
- * Format date input to yyyy-MM-dd format
+ * Format date input to yyyy-MM-dd format with auto-completion
  */
 export const formatDateInput = (input: string) => {
   // Remove non-numeric characters except hyphens
   let formattedInput = input.replace(/[^\d-]/g, '');
   
-  // Split by hyphens to get year, month, day
+  // Split by hyphens
   const parts = formattedInput.split('-');
   let year = parts[0] || '';
   let month = parts.length > 1 ? parts[1] : '';
   let day = parts.length > 2 ? parts[2] : '';
   
-  // Ensure year, month and day don't exceed their limits
-  if (year.length > 4) year = year.slice(0, 4);
-  if (month.length > 2) month = month.slice(0, 2);
-  if (day.length > 2) day = day.slice(0, 2);
+  // Auto-complete year
+  if (year.length === 4) {
+    formattedInput = `${year}-`;
+  }
   
-  // Format month
-  if (month) {
+  // Auto-complete month
+  if (year.length === 4 && month) {
     const monthNum = parseInt(month);
-    if (monthNum > 12) month = '12';
-    else if (monthNum === 0) month = '01';
-    else if (month.length === 1 && monthNum > 0) month = monthNum.toString().padStart(2, '0');
-  }
-  
-  // Format day based on month
-  if (day) {
-    const dayNum = parseInt(day);
-    const monthNum = parseInt(month) || 0;
-    let maxDays = 31;
-    
-    // Determine max days for the month
-    if (monthNum === 2) {
-      // February (leap year check)
-      const yearNum = parseInt(year) || new Date().getFullYear();
-      maxDays = ((yearNum % 4 === 0 && yearNum % 100 !== 0) || yearNum % 400 === 0) ? 29 : 28;
-    } else if ([4, 6, 9, 11].includes(monthNum)) {
-      // April, June, September, November have 30 days
-      maxDays = 30;
+    if (month.length === 1) {
+      if (monthNum >= 0 && monthNum <= 9) {
+        month = month.padStart(2, '0');
+        formattedInput = `${year}-${month}-`;
+      }
+    } else if (month.length === 2) {
+      if (monthNum > 12) {
+        month = '12';
+      } else if (monthNum === 0) {
+        month = '01';
+      }
+      formattedInput = `${year}-${month}-`;
     }
-    
-    if (dayNum > maxDays) day = maxDays.toString();
-    else if (dayNum === 0) day = '01';
-    else if (day.length === 1 && dayNum > 0) day = dayNum.toString().padStart(2, '0');
   }
   
-  // Reconstruct the formatted date
-  let result = year;
-  if (month) result += result ? '-' + month : month;
-  if (day) result += result && month ? '-' + day : day;
+  // Auto-complete and validate day
+  if (year.length === 4 && month.length === 2 && day) {
+    const monthNum = parseInt(month);
+    const yearNum = parseInt(year);
+    let maxDays = getDaysInMonth(new Date(yearNum, monthNum - 1));
+    
+    const dayNum = parseInt(day);
+    if (day.length === 1) {
+      if (dayNum >= 0 && dayNum <= 9) {
+        day = day.padStart(2, '0');
+      }
+    } else if (day.length === 2) {
+      if (dayNum > maxDays) {
+        day = maxDays.toString();
+      } else if (dayNum === 0) {
+        day = '01';
+      }
+    }
+    formattedInput = `${year}-${month}-${day}`;
+  }
   
-  return result;
+  return formattedInput;
 };
 
 /**
- * Format time input to HH:mm:ss format
+ * Format time input to HH:mm:ss format with auto-completion
  */
 export const formatTimeInput = (input: string) => {
   // Remove non-numeric characters except colons
   let formattedInput = input.replace(/[^\d:]/g, '');
   
-  // Split by colons to get hours, minutes, seconds
+  // Split by colons
   const parts = formattedInput.split(':');
   let hours = parts[0] || '';
   let minutes = parts.length > 1 ? parts[1] : '';
   let seconds = parts.length > 2 ? parts[2] : '';
   
-  // Ensure hours, minutes, seconds don't exceed their limits
-  if (hours.length > 2) hours = hours.slice(0, 2);
-  if (minutes.length > 2) minutes = minutes.slice(0, 2);
-  if (seconds.length > 2) seconds = seconds.slice(0, 2);
-  
-  // Format hours
+  // Auto-complete hours
   if (hours) {
     const hoursNum = parseInt(hours);
-    if (hoursNum > 23) hours = '23';
-    else if (hours.length === 1 && hoursNum >= 0) hours = hoursNum.toString().padStart(2, '0');
+    if (hours.length === 1) {
+      if (hoursNum >= 0 && hoursNum <= 9) {
+        hours = hours.padStart(2, '0');
+        formattedInput = `${hours}:`;
+      }
+    } else if (hours.length === 2) {
+      if (hoursNum > 23) {
+        hours = '23';
+      }
+      formattedInput = `${hours}:`;
+    }
   }
   
-  // Format minutes
-  if (minutes) {
+  // Auto-complete minutes
+  if (hours.length === 2 && minutes) {
     const minutesNum = parseInt(minutes);
-    if (minutesNum > 59) minutes = '59';
-    else if (minutes.length === 1 && minutesNum >= 0) minutes = minutes.toString().padStart(2, '0');
+    if (minutes.length === 1) {
+      if (minutesNum >= 0 && minutesNum <= 9) {
+        minutes = minutes.padStart(2, '0');
+        formattedInput = `${hours}:${minutes}:`;
+      }
+    } else if (minutes.length === 2) {
+      if (minutesNum > 59) {
+        minutes = '59';
+      }
+      formattedInput = `${hours}:${minutes}:`;
+    }
   }
   
-  // Format seconds
-  if (seconds) {
+  // Auto-complete seconds
+  if (hours.length === 2 && minutes.length === 2 && seconds) {
     const secondsNum = parseInt(seconds);
-    if (secondsNum > 59) seconds = '59';
-    else if (seconds.length === 1 && secondsNum >= 0) seconds = seconds.toString().padStart(2, '0');
+    if (seconds.length === 1) {
+      if (secondsNum >= 0 && secondsNum <= 9) {
+        seconds = seconds.padStart(2, '0');
+      }
+    } else if (seconds.length === 2) {
+      if (secondsNum > 59) {
+        seconds = '59';
+      }
+    }
+    formattedInput = `${hours}:${minutes}:${seconds}`;
   }
   
-  // Reconstruct the formatted time
-  let result = hours;
-  if (minutes) result += result ? ':' + minutes : minutes;
-  if (seconds) result += result && minutes ? ':' + seconds : seconds;
-  
-  return result;
+  return formattedInput;
 };
 
 /**
