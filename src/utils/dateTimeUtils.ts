@@ -1,4 +1,3 @@
-
 export const formatDateInput = (input: string): string => {
   if (!input) return '';
   
@@ -76,13 +75,13 @@ export const highlightPythonCode = (code: string) => {
   const keywords = ["def", "import", "from", "return", "if", "elif", "else", "for", "while", "in", "not", "and", "or", "class", "try", "except", "finally", "with", "as", "True", "False", "None"];
   const builtins = ["print", "len", "dict", "list", "tuple", "set", "int", "str", "float", "bool", "datetime", "timedelta", "pytz"];
   
-  // Replace special HTML characters to prevent XSS and rendering issues
+  // Replace special HTML characters
   let highlightedCode = code
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;");
   
-  // Highlight strings (simple version)
+  // Highlight strings
   highlightedCode = highlightedCode.replace(/(["'])(.*?)\1/g, '<span class="text-amber-500">$1$2$1</span>');
   
   // Highlight comments
@@ -93,13 +92,13 @@ export const highlightPythonCode = (code: string) => {
   
   // Highlight keywords
   keywords.forEach(keyword => {
-    const regex = new RegExp(`\\b(${keyword})\\b`, 'g');
+    const regex = new RegExp(`\\b${keyword}\\b`, 'g');
     highlightedCode = highlightedCode.replace(regex, `<span class="text-purple-400">${keyword}</span>`);
   });
   
   // Highlight built-in functions
   builtins.forEach(builtin => {
-    const regex = new RegExp(`\\b(${builtin})\\b`, 'g');
+    const regex = new RegExp(`\\b${builtin}\\b`, 'g');
     highlightedCode = highlightedCode.replace(regex, `<span class="text-cyan-400">${builtin}</span>`);
   });
   
@@ -108,4 +107,3 @@ export const highlightPythonCode = (code: string) => {
   
   return highlightedCode;
 };
-
