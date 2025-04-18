@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { formatInTimeZone } from "date-fns-tz";
 import { Button } from "@/components/ui/button";
@@ -10,22 +11,16 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
 import { CalendarIcon, Copy, Code } from "lucide-react";
-import { format, parse, isValid } from "date-fns";
-import { cn } from "@/lib/utils";
+import { format } from "date-fns";
 
 const TimeConverter = () => {
-  const [date, setDate] = useState<Date>();
-  const [timeInput, setTimeInput] = useState("00:00:00");
   const [dateInput, setDateInput] = useState("");
+  const [timeInput, setTimeInput] = useState("");
   const [sourceZone, setSourceZone] = useState("UTC");
   const [targetZone, setTargetZone] = useState("Asia/Shanghai");
+  const [convertedResult, setConvertedResult] = useState("");
+  const [pythonCode, setPythonCode] = useState("");
   const { toast } = useToast();
 
   const timeZones = [
@@ -52,140 +47,179 @@ const TimeConverter = () => {
     return zone.replace(/_/g, ' ');
   };
 
-  const getDaysInMonth = (year: number, month: number) => {
-    return new Date(year, month, 0).getDate();
-  };
-
   const formatDateInput = (input: string) => {
-    const numbers = input.replace(/\D/g, '');
+    // Remove non-numeric characters except hyphens
+    let formattedInput = input.replace(/[^\d-]/g, '');
     
-    if (numbers.length === 0) return '';
+    // Split by hyphens to get year, month, day
+    const parts = formattedInput.split('-');
+    let year = parts[0] || '';
+    let month = parts.length > 1 ? parts[1] : '';
+    let day = parts.length > 2 ? parts[2] : '';
     
-    let year = '', month = '', day = '';
+    // Ensure year, month and day don't exceed their limits
+    if (year.length > 4) year = year.slice(0, 4);
+    if (month.length > 2) month = month.slice(0, 2);
+    if (day.length > 2) day = day.slice(0, 2);
     
-    if (numbers.length >= 4) {
-      year = numbers.slice(0, 4);
-    } else {
-      return numbers;
-    }
-    
-    if (numbers.length > 4) {
-      month = numbers.slice(4, 6);
+    // Format month
+    if (month) {
       const monthNum = parseInt(month);
       if (monthNum > 12) month = '12';
       else if (monthNum === 0) month = '01';
-      else month = monthNum.toString().padStart(2, '0');
+      else if (month.length === 1 && monthNum > 0) month = monthNum.toString().padStart(2, '0');
     }
     
-    if (numbers.length > 6) {
-      day = numbers.slice(6, 8);
+    // Format day based on month
+    if (day) {
       const dayNum = parseInt(day);
-      const monthNum = parseInt(month);
-      const yearNum = parseInt(year);
+      const monthNum = parseInt(month) || 0;
+      let maxDays = 31;
       
-      const daysInMonth = new Date(yearNum, monthNum, 0).getDate();
+      // Determine max days for the month
+      if (monthNum === 2) {
+        // February (simple leap year check)
+        const yearNum = parseInt(year) || new Date().getFullYear();
+        maxDays = ((yearNum % 4 === 0 && yearNum % 100 !== 0) || yearNum % 400 === 0) ? 29 : 28;
+      } else if ([4, 6, 9, 11].includes(monthNum)) {
+        // April, June, September, November have 30 days
+        maxDays = 30;
+      }
       
-      if (dayNum > daysInMonth) day = daysInMonth.toString();
+      if (dayNum > maxDays) day = maxDays.toString();
       else if (dayNum === 0) day = '01';
-      else day = dayNum.toString().padStart(2, '0');
+      else if (day.length === 1 && dayNum > 0) day = dayNum.toString().padStart(2, '0');
     }
     
+    // Reconstruct the formatted date
     let result = year;
-    if (month) result += '-' + month;
-    if (day) result += '-' + day;
+    if (month) result += result ? '-' + month : month;
+    if (day) result += result && month ? '-' + day : day;
     
     return result;
   };
 
   const formatTimeInput = (input: string) => {
-    const cleanInput = input.replace(/[^\d:]/g, '');
-    const parts = cleanInput.split(':');
-    let hours = parts[0] || '00';
-    let minutes = parts[1] || '00';
-    let seconds = parts[2] || '00';
+    // Remove non-numeric characters except colons
+    let formattedInput = input.replace(/[^\d:]/g, '');
     
-    const hoursNum = parseInt(hours);
-    hours = (hoursNum >= 0 && hoursNum < 24) ? hoursNum.toString().padStart(2, '0') : '00';
+    // Split by colons to get hours, minutes, seconds
+    const parts = formattedInput.split(':');
+    let hours = parts[0] || '';
+    let minutes = parts.length > 1 ? parts[1] : '';
+    let seconds = parts.length > 2 ? parts[2] : '';
     
-    const minutesNum = parseInt(minutes);
-    minutes = (minutesNum >= 0 && minutesNum < 60) ? minutesNum.toString().padStart(2, '0') : '00';
+    // Ensure hours, minutes, seconds don't exceed their limits
+    if (hours.length > 2) hours = hours.slice(0, 2);
+    if (minutes.length > 2) minutes = minutes.slice(0, 2);
+    if (seconds.length > 2) seconds = seconds.slice(0, 2);
     
-    const secondsNum = parseInt(seconds);
-    seconds = (secondsNum >= 0 && secondsNum < 60) ? secondsNum.toString().padStart(2, '0') : '00';
+    // Format hours
+    if (hours) {
+      const hoursNum = parseInt(hours);
+      if (hoursNum > 23) hours = '23';
+      else if (hours.length === 1 && hoursNum >= 0) hours = hoursNum.toString().padStart(2, '0');
+    }
     
-    return `${hours}:${minutes}:${seconds}`;
+    // Format minutes
+    if (minutes) {
+      const minutesNum = parseInt(minutes);
+      if (minutesNum > 59) minutes = '59';
+      else if (minutes.length === 1 && minutesNum >= 0) minutes = minutesNum.toString().padStart(2, '0');
+    }
+    
+    // Format seconds
+    if (seconds) {
+      const secondsNum = parseInt(seconds);
+      if (secondsNum > 59) seconds = '59';
+      else if (seconds.length === 1 && secondsNum >= 0) seconds = secondsNum.toString().padStart(2, '0');
+    }
+    
+    // Reconstruct the formatted time
+    let result = hours;
+    if (minutes) result += result ? ':' + minutes : minutes;
+    if (seconds) result += result && minutes ? ':' + seconds : seconds;
+    
+    return result;
   };
 
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const formatted = formatDateInput(e.target.value);
-    setDateInput(formatted);
-
-    if (formatted.length === 10) {
-      const parsedDate = parse(formatted, 'yyyy-MM-dd', new Date());
-      if (isValid(parsedDate)) {
-        setDate(parsedDate);
-      }
-    }
+    setDateInput(e.target.value);
   };
 
   const handleTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const formatted = formatTimeInput(e.target.value);
-    setTimeInput(formatted);
-  };
-
-  const handleCalendarSelect = (selectedDate: Date | undefined) => {
-    setDate(selectedDate);
-    if (selectedDate) {
-      setDateInput(format(selectedDate, 'yyyy-MM-dd'));
-    }
+    setTimeInput(e.target.value);
   };
 
   const getFullDateTime = () => {
-    if (!date) return "";
-    const [hours, minutes, seconds] = timeInput.split(":").map(Number);
-    const newDate = new Date(date);
-    newDate.setHours(hours || 0);
-    newDate.setMinutes(minutes || 0);
-    newDate.setSeconds(seconds || 0);
-    return newDate.toISOString();
+    const formattedDate = formatDateInput(dateInput);
+    const formattedTime = formatTimeInput(timeInput);
+    
+    if (formattedDate.length < 10 || !formattedTime) return "";
+    
+    return `${formattedDate} ${formattedTime}`;
   };
 
   const convertTime = () => {
     try {
       const fullDateTime = getFullDateTime();
-      if (!fullDateTime) return "Please select date and time";
-      const date = new Date(fullDateTime);
-      if (isNaN(date.getTime())) {
-        return "Invalid time format";
+      if (!fullDateTime) {
+        setConvertedResult("Please enter valid date and time");
+        generatePythonCode(false);
+        return;
       }
+      
+      // Try to parse the date in format "YYYY-MM-DD HH:MM:SS"
+      const dateTimeParts = fullDateTime.split(' ');
+      const dateParts = dateTimeParts[0].split('-');
+      const timeParts = dateTimeParts[1].split(':');
+      
+      const year = parseInt(dateParts[0]);
+      const month = parseInt(dateParts[1]) - 1; // Month is 0-indexed in JavaScript
+      const day = parseInt(dateParts[2]);
+      const hour = parseInt(timeParts[0]);
+      const minute = parseInt(timeParts[1]) || 0;
+      const second = parseInt(timeParts[2]) || 0;
+      
+      const date = new Date(year, month, day, hour, minute, second);
+      
+      if (isNaN(date.getTime())) {
+        setConvertedResult("Invalid date or time format");
+        generatePythonCode(false);
+        return;
+      }
+      
       const result = formatInTimeZone(date, targetZone, "yyyy-MM-dd HH:mm:ss");
-      return result;
+      setConvertedResult(result);
+      generatePythonCode(true, fullDateTime);
     } catch (error) {
-      return "Invalid time format";
+      setConvertedResult("Invalid time format");
+      generatePythonCode(false);
     }
   };
 
-  const copyToClipboard = () => {
-    const result = convertTime();
-    navigator.clipboard.writeText(result);
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
     toast({
       title: "Copied to clipboard",
       duration: 2000,
     });
   };
 
-  const generatePythonCode = () => {
+  const generatePythonCode = (isValid: boolean, dateTimeStr?: string) => {
+    if (!isValid) {
+      setPythonCode("");
+      return;
+    }
+    
     const pythonCode = `
 from datetime import datetime
 import pytz
 
-def convert_time(date_str="${dateInput}", time_str="${timeInput}", 
+def convert_time(date_time_str="${dateTimeStr || ""}",
                 source_zone="${sourceZone}", target_zone="${targetZone}"):
-    # Combine date and time
-    dt_str = f"{date_str} {time_str}"
-    
-    # Create datetime object
-    dt = datetime.strptime(dt_str, "%Y-%m-%d %H:%M:%S")
+    # Parse datetime string
+    dt = datetime.strptime(date_time_str, "%Y-%m-%d %H:%M:%S")
     
     # Localize the datetime to source timezone
     source_tz = pytz.timezone(source_zone)
@@ -203,12 +237,18 @@ result = convert_time()
 print(f"Converted time: {result}")
     `.trim();
 
-    navigator.clipboard.writeText(pythonCode);
-    toast({
-      title: "Python code copied to clipboard",
-      description: "The code has been copied and can be used in your Python environment.",
-      duration: 3000,
-    });
+    setPythonCode(pythonCode);
+  };
+
+  const copyPythonCode = () => {
+    if (pythonCode) {
+      navigator.clipboard.writeText(pythonCode);
+      toast({
+        title: "Python code copied to clipboard",
+        description: "The code has been copied and can be used in your Python environment.",
+        duration: 3000,
+      });
+    }
   };
 
   return (
@@ -217,48 +257,30 @@ print(f"Converted time: {result}")
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-1">
-              Date
+              Date (YYYY-MM-DD)
             </label>
             <div className="flex items-center space-x-2">
               <Input
                 type="text"
                 placeholder="YYYY-MM-DD"
                 value={dateInput}
-                onChange={(e) => setDateInput(formatDateInput(e.target.value))}
-                maxLength={10}
+                onChange={handleDateChange}
+                onBlur={() => setDateInput(formatDateInput(dateInput))}
                 className="w-full bg-black/20 border-purple-500/20 text-gray-100 focus:border-purple-500"
               />
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className="bg-black/20 border-purple-500/20 hover:bg-purple-500/20"
-                  >
-                    <CalendarIcon className="h-4 w-4 text-gray-300" />
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={date}
-                    onSelect={handleCalendarSelect}
-                    initialFocus
-                    className="pointer-events-auto"
-                  />
-                </PopoverContent>
-              </Popover>
             </div>
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-1">
-              Time
+              Time (HH:MM:SS)
             </label>
             <Input
               type="text"
               placeholder="HH:MM:SS"
               value={timeInput}
-              onChange={(e) => setTimeInput(formatTimeInput(e.target.value))}
+              onChange={handleTimeChange}
+              onBlur={() => setTimeInput(formatTimeInput(timeInput))}
               className="w-full bg-black/20 border-purple-500/20 text-gray-100 focus:border-purple-500"
             />
           </div>
@@ -302,36 +324,54 @@ print(f"Converted time: {result}")
           </div>
         </div>
 
-        <div className="flex justify-between items-center">
-          <Button
-            onClick={generatePythonCode}
-            variant="outline"
-            className="bg-black/20 border-purple-500/20 hover:bg-purple-500/20 text-gray-100"
-          >
-            <Code className="h-4 w-4 mr-2" />
-            Generate Python Code
-          </Button>
-        </div>
+        <Button 
+          onClick={convertTime} 
+          className="w-full bg-black/20 border-purple-500/20 hover:bg-purple-500/20 text-gray-100"
+        >
+          Convert Time
+        </Button>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-300 mb-1">
-            Converted Result
-          </label>
-          <div className="flex gap-2">
-            <Input
-              value={convertTime()}
-              readOnly
-              className="bg-black/20 border-purple-500/20 text-gray-100"
-            />
-            <Button
-              onClick={copyToClipboard}
-              variant="outline"
-              className="shrink-0 border-purple-500/20 hover:bg-purple-500/20"
-            >
-              Copy
-            </Button>
+        {convertedResult && (
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-1">
+              Converted Result
+            </label>
+            <div className="flex gap-2">
+              <Input
+                value={convertedResult}
+                readOnly
+                className="bg-black/20 border-purple-500/20 text-gray-100"
+              />
+              <Button
+                onClick={() => copyToClipboard(convertedResult)}
+                variant="outline"
+                className="shrink-0 border-purple-500/20 hover:bg-purple-500/20"
+              >
+                <Copy className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
-        </div>
+        )}
+
+        {pythonCode && (
+          <div className="mt-4">
+            <label className="block text-sm font-medium text-gray-300 mb-1">
+              Python Code
+            </label>
+            <div className="relative">
+              <pre className="bg-black/30 rounded-md p-4 text-gray-200 text-xs overflow-auto">
+                {pythonCode}
+              </pre>
+              <Button
+                onClick={copyPythonCode}
+                variant="outline"
+                className="absolute top-2 right-2 h-8 py-1 px-2 border-purple-500/20 hover:bg-purple-500/20"
+              >
+                <Copy className="h-3 w-3 mr-1" /> Copy
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
