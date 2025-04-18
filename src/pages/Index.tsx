@@ -1,3 +1,4 @@
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Earth } from "lucide-react";
 import TimeConverter from "@/components/TimeConverter";
@@ -28,8 +29,7 @@ const Index = () => {
               <TabsTrigger value="api">API</TabsTrigger>
             </TabsList>
             
-            <TabsContent value="converter" className="flex items-center gap-2 mb-4">
-              <Earth className="w-5 h-5 text-purple-400" />
+            <TabsContent value="converter">
               <TimeConverter />
             </TabsContent>
             

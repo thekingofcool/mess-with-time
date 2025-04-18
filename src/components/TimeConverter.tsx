@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { formatInTimeZone } from "date-fns-tz";
 import { Button } from "@/components/ui/button";
@@ -10,7 +11,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
-import { CalendarIcon, Copy, Code } from "lucide-react";
+import { CalendarIcon, Copy, Code, Earth } from "lucide-react";
 import { format } from "date-fns";
 import { formatDateInput, formatTimeInput, highlightPythonCode } from "@/utils/dateTimeUtils";
 
@@ -151,8 +152,8 @@ print(f"Converted time: {result}")
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-center space-x-2 mb-4">
-        <CalendarIcon className="w-6 h-6 text-purple-400" />
+      <div className="flex items-center space-x-2 mb-4">
+        <Earth className="w-6 h-6 text-purple-400" />
         <h2 className="text-xl font-bold text-white">Time Zone Converter</h2>
       </div>
 
@@ -283,7 +284,7 @@ print(f"Converted time: {result}")
             </label>
             <div className="relative">
               <pre className="bg-black/30 rounded-md p-4 overflow-auto">
-                <div className="text-gray-200 text-xs" dangerouslySetInnerHTML={{ __html: highlightPythonCode(pythonCode) }} />
+                <code className="text-gray-200 text-xs" dangerouslySetInnerHTML={{ __html: highlightPythonCode(pythonCode) }} />
               </pre>
               <Button
                 onClick={copyPythonCode}
