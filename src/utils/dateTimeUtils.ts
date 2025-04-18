@@ -2,6 +2,20 @@
  * Utility functions for consistent date and time formatting and validation
  */
 
+// Get the number of days in a month, accounting for leap years
+const getDaysInMonth = (date: Date): number => {
+  const year = date.getFullYear();
+  const month = date.getMonth(); // 0-indexed
+  
+  // For February, check if it's a leap year
+  if (month === 1) {
+    return ((year % 4 === 0 && year % 100 !== 0) || year % 400 === 0) ? 29 : 28;
+  }
+  
+  // Other months
+  return [31, 0, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][month];
+};
+
 /**
  * Format date input to yyyy-MM-dd format with auto-completion
  */
