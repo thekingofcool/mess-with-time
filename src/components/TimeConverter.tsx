@@ -52,6 +52,10 @@ const TimeConverter = () => {
     return zone.replace(/_/g, ' ');
   };
 
+  const getDaysInMonth = (year: number, month: number) => {
+    return new Date(year, month, 0).getDate();
+  };
+
   const formatDateInput = (input: string) => {
     const numbers = input.replace(/\D/g, '');
     
@@ -74,7 +78,11 @@ const TimeConverter = () => {
       }
       return `${numbers.slice(0, 4)}-${month}`;
     } else {
+      const year = parseInt(numbers.slice(0, 4));
+      const month = parseInt(numbers.slice(4, 6));
       const day = numbers.slice(6, 8);
+      const maxDays = getDaysInMonth(year, month);
+      
       const firstDayDigit = day[0];
       let formattedDay = day;
       
@@ -82,8 +90,8 @@ const TimeConverter = () => {
         formattedDay = `0${firstDayDigit}`;
       } else if (day.length === 2) {
         const dayNum = parseInt(day);
-        if (dayNum > 31) {
-          formattedDay = '31';
+        if (dayNum > maxDays) {
+          formattedDay = maxDays.toString().padStart(2, '0');
         }
       }
       
