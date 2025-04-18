@@ -152,7 +152,7 @@ print(f"Converted time: {result}")
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center space-x-2 mb-4">
+      <div className="flex items-center justify-center space-x-2 mb-4">
         <Earth className="w-6 h-6 text-purple-400" />
         <h2 className="text-xl font-bold text-white">Time Zone Converter</h2>
       </div>
