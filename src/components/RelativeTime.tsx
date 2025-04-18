@@ -1,9 +1,8 @@
-
 import { useState, useEffect } from "react";
-import { formatDistanceToNow, formatRelative } from "date-fns";
+import { formatDistanceToNow, formatRelative, format } from "date-fns";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { History, RefreshCw } from "lucide-react";
+import { History, RefreshCw, Copy } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { formatDateInput, formatTimeInput, highlightPythonCode } from "@/utils/dateTimeUtils";
 
@@ -18,7 +17,6 @@ const RelativeTime = () => {
   const [pythonCode, setPythonCode] = useState<string>("");
   const { toast } = useToast();
 
-  // Update current time every second
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentTime(new Date());
@@ -46,7 +44,6 @@ const RelativeTime = () => {
         setInputTime(dateTimeStr);
         setUnixTimestamp("");
       } else if (unixTimestamp) {
-        // Convert Unix timestamp to Date
         dateToUse = new Date(parseInt(unixTimestamp) * 1000);
       } else {
         setRelativeTimeStr("");
@@ -62,7 +59,6 @@ const RelativeTime = () => {
         setRelativeTimeStr(relTime);
         setDistanceTimeStr(distTime);
         
-        // Generate Python code
         generatePythonCode(dateToUse);
       } else {
         setRelativeTimeStr("");

@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { addDays, addHours, addMinutes, differenceInDays, differenceInHours, differenceInMinutes, differenceInSeconds, format } from "date-fns";
 import { Input } from "@/components/ui/input";
@@ -218,6 +217,17 @@ print(f"Result: {result}")
                 value={startDateInput}
                 onChange={(e) => setStartDateInput(e.target.value)}
                 onBlur={() => setStartDateInput(formatDateInput(startDateInput))}
+                onKeyDown={(e) => {
+                  // Allow only digits, hyphens, and control keys
+                  if (!/[\d-]/.test(e.key) && 
+                      e.key !== 'Backspace' && 
+                      e.key !== 'Delete' && 
+                      e.key !== 'ArrowLeft' && 
+                      e.key !== 'ArrowRight' &&
+                      e.key !== 'Tab') {
+                    e.preventDefault();
+                  }
+                }}
                 className="w-full bg-black/20 border-purple-500/20 text-gray-100 focus:border-purple-500"
               />
             </div>
@@ -232,6 +242,17 @@ print(f"Result: {result}")
                 value={startTimeInput}
                 onChange={(e) => setStartTimeInput(e.target.value)}
                 onBlur={() => setStartTimeInput(formatTimeInput(startTimeInput))}
+                onKeyDown={(e) => {
+                  // Allow only digits, colons, and control keys
+                  if (!/[\d:]/.test(e.key) && 
+                      e.key !== 'Backspace' && 
+                      e.key !== 'Delete' && 
+                      e.key !== 'ArrowLeft' && 
+                      e.key !== 'ArrowRight' &&
+                      e.key !== 'Tab') {
+                    e.preventDefault();
+                  }
+                }}
                 className="w-full bg-black/20 border-purple-500/20 text-gray-100 focus:border-purple-500"
               />
             </div>
@@ -248,6 +269,17 @@ print(f"Result: {result}")
                 value={endDateInput}
                 onChange={(e) => setEndDateInput(e.target.value)}
                 onBlur={() => setEndDateInput(formatDateInput(endDateInput))}
+                onKeyDown={(e) => {
+                  // Allow only digits, hyphens, and control keys
+                  if (!/[\d-]/.test(e.key) && 
+                      e.key !== 'Backspace' && 
+                      e.key !== 'Delete' && 
+                      e.key !== 'ArrowLeft' && 
+                      e.key !== 'ArrowRight' &&
+                      e.key !== 'Tab') {
+                    e.preventDefault();
+                  }
+                }}
                 className="w-full bg-black/20 border-purple-500/20 text-gray-100 focus:border-purple-500"
               />
             </div>
@@ -262,6 +294,17 @@ print(f"Result: {result}")
                 value={endTimeInput}
                 onChange={(e) => setEndTimeInput(e.target.value)}
                 onBlur={() => setEndTimeInput(formatTimeInput(endTimeInput))}
+                onKeyDown={(e) => {
+                  // Allow only digits, colons, and control keys
+                  if (!/[\d:]/.test(e.key) && 
+                      e.key !== 'Backspace' && 
+                      e.key !== 'Delete' && 
+                      e.key !== 'ArrowLeft' && 
+                      e.key !== 'ArrowRight' &&
+                      e.key !== 'Tab') {
+                    e.preventDefault();
+                  }
+                }}
                 className="w-full bg-black/20 border-purple-500/20 text-gray-100 focus:border-purple-500"
               />
             </div>
@@ -326,6 +369,17 @@ print(f"Result: {result}")
                 value={baseDateInput}
                 onChange={(e) => setBaseDateInput(e.target.value)}
                 onBlur={() => setBaseDateInput(formatDateInput(baseDateInput))}
+                onKeyDown={(e) => {
+                  // Allow only digits, hyphens, and control keys
+                  if (!/[\d-]/.test(e.key) && 
+                      e.key !== 'Backspace' && 
+                      e.key !== 'Delete' && 
+                      e.key !== 'ArrowLeft' && 
+                      e.key !== 'ArrowRight' &&
+                      e.key !== 'Tab') {
+                    e.preventDefault();
+                  }
+                }}
                 className="w-full bg-black/20 border-purple-500/20 text-gray-100 focus:border-purple-500"
               />
             </div>
@@ -340,6 +394,17 @@ print(f"Result: {result}")
                 value={baseTimeInput}
                 onChange={(e) => setBaseTimeInput(e.target.value)}
                 onBlur={() => setBaseTimeInput(formatTimeInput(baseTimeInput))}
+                onKeyDown={(e) => {
+                  // Allow only digits, colons, and control keys
+                  if (!/[\d:]/.test(e.key) && 
+                      e.key !== 'Backspace' && 
+                      e.key !== 'Delete' && 
+                      e.key !== 'ArrowLeft' && 
+                      e.key !== 'ArrowRight' &&
+                      e.key !== 'Tab') {
+                    e.preventDefault();
+                  }
+                }}
                 className="w-full bg-black/20 border-purple-500/20 text-gray-100 focus:border-purple-500"
               />
             </div>

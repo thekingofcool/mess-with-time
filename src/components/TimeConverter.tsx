@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { formatInTimeZone } from "date-fns-tz";
 import { Button } from "@/components/ui/button";
@@ -74,13 +73,12 @@ const TimeConverter = () => {
         return;
       }
       
-      // Try to parse the date in format "yyyy-MM-dd HH:mm:ss"
       const dateTimeParts = fullDateTime.split(' ');
       const dateParts = dateTimeParts[0].split('-');
       const timeParts = dateTimeParts[1].split(':');
       
       const year = parseInt(dateParts[0]);
-      const month = parseInt(dateParts[1]) - 1; // Month is 0-indexed in JavaScript
+      const month = parseInt(dateParts[1]) - 1;
       const day = parseInt(dateParts[2]);
       const hour = parseInt(timeParts[0]);
       const minute = parseInt(timeParts[1]) || 0;
@@ -171,6 +169,16 @@ print(f"Converted time: {result}")
                 value={dateInput}
                 onChange={handleDateChange}
                 onBlur={() => setDateInput(formatDateInput(dateInput))}
+                onKeyDown={(e) => {
+                  if (!/[\d-]/.test(e.key) && 
+                      e.key !== 'Backspace' && 
+                      e.key !== 'Delete' && 
+                      e.key !== 'ArrowLeft' && 
+                      e.key !== 'ArrowRight' &&
+                      e.key !== 'Tab') {
+                    e.preventDefault();
+                  }
+                }}
                 className="w-full bg-black/20 border-purple-500/20 text-gray-100 focus:border-purple-500"
               />
             </div>
@@ -186,6 +194,16 @@ print(f"Converted time: {result}")
               value={timeInput}
               onChange={handleTimeChange}
               onBlur={() => setTimeInput(formatTimeInput(timeInput))}
+              onKeyDown={(e) => {
+                if (!/[\d:]/.test(e.key) && 
+                    e.key !== 'Backspace' && 
+                    e.key !== 'Delete' && 
+                    e.key !== 'ArrowLeft' && 
+                    e.key !== 'ArrowRight' &&
+                    e.key !== 'Tab') {
+                  e.preventDefault();
+                }
+              }}
               className="w-full bg-black/20 border-purple-500/20 text-gray-100 focus:border-purple-500"
             />
           </div>

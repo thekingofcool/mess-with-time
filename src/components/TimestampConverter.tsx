@@ -240,6 +240,20 @@ print(f"Datetime: {result}")
             <Input
               value={timestamp}
               onChange={(e) => setTimestamp(e.target.value)}
+              onKeyDown={(e) => {
+                // For ISO 8601, allow all characters
+                if (timestampType === "iso8601") return;
+                
+                // For timestamp types, allow only digits and control keys
+                if (!/\d/.test(e.key) && 
+                    e.key !== 'Backspace' && 
+                    e.key !== 'Delete' && 
+                    e.key !== 'ArrowLeft' && 
+                    e.key !== 'ArrowRight' &&
+                    e.key !== 'Tab') {
+                  e.preventDefault();
+                }
+              }}
               placeholder={timestampType === "iso8601" ? "YYYY-MM-DDTHH:mm:ssZ" : "Enter timestamp"}
               className="flex-1 bg-black/20 border-purple-500/20 text-gray-100 focus:border-purple-500"
             />
@@ -265,6 +279,17 @@ print(f"Datetime: {result}")
               value={dateInput}
               onChange={handleDateChange}
               onBlur={() => setDateInput(formatDateInput(dateInput))}
+              onKeyDown={(e) => {
+                // Allow only digits, hyphens, and control keys
+                if (!/[\d-]/.test(e.key) && 
+                    e.key !== 'Backspace' && 
+                    e.key !== 'Delete' && 
+                    e.key !== 'ArrowLeft' && 
+                    e.key !== 'ArrowRight' &&
+                    e.key !== 'Tab') {
+                  e.preventDefault();
+                }
+              }}
               className="w-full bg-black/20 border-purple-500/20 text-gray-100 focus:border-purple-500"
             />
           </div>
@@ -279,6 +304,17 @@ print(f"Datetime: {result}")
               value={timeInput}
               onChange={handleTimeChange}
               onBlur={() => setTimeInput(formatTimeInput(timeInput))}
+              onKeyDown={(e) => {
+                // Allow only digits, colons, and control keys
+                if (!/[\d:]/.test(e.key) && 
+                    e.key !== 'Backspace' && 
+                    e.key !== 'Delete' && 
+                    e.key !== 'ArrowLeft' && 
+                    e.key !== 'ArrowRight' &&
+                    e.key !== 'Tab') {
+                  e.preventDefault();
+                }
+              }}
               className="w-full bg-black/20 border-purple-500/20 text-gray-100 focus:border-purple-500"
             />
           </div>

@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { format } from "date-fns";
 import { Input } from "@/components/ui/input";
@@ -6,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { FileText, Copy, CheckCircle2, RefreshCw, Calendar } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { formatDateInput, formatTimeInput, highlightPythonCode } from "@/utils/dateTimeUtils";
 
 const TimeFormatter = () => {
   const [dateInput, setDateInput] = useState<string>("");
@@ -28,21 +28,17 @@ const TimeFormatter = () => {
   ];
 
   const formatDateInput = (input: string) => {
-    // Remove non-numeric characters except hyphens
     let formattedInput = input.replace(/[^\d-]/g, '');
     
-    // Split by hyphens to get year, month, day
     const parts = formattedInput.split('-');
     let year = parts[0] || '';
     let month = parts.length > 1 ? parts[1] : '';
     let day = parts.length > 2 ? parts[2] : '';
     
-    // Ensure year, month and day don't exceed their limits
     if (year.length > 4) year = year.slice(0, 4);
     if (month.length > 2) month = month.slice(0, 2);
     if (day.length > 2) day = day.slice(0, 2);
     
-    // Format month
     if (month) {
       const monthNum = parseInt(month);
       if (monthNum > 12) month = '12';
@@ -50,19 +46,15 @@ const TimeFormatter = () => {
       else if (month.length === 1 && monthNum > 0) month = monthNum.toString().padStart(2, '0');
     }
     
-    // Format day based on month
     if (day) {
       const dayNum = parseInt(day);
       const monthNum = parseInt(month) || 0;
       let maxDays = 31;
       
-      // Determine max days for the month
       if (monthNum === 2) {
-        // February (simple leap year check)
         const yearNum = parseInt(year) || new Date().getFullYear();
         maxDays = ((yearNum % 4 === 0 && yearNum % 100 !== 0) || yearNum % 400 === 0) ? 29 : 28;
       } else if ([4, 6, 9, 11].includes(monthNum)) {
-        // April, June, September, November have 30 days
         maxDays = 30;
       }
       
@@ -71,7 +63,6 @@ const TimeFormatter = () => {
       else if (day.length === 1 && dayNum > 0) day = dayNum.toString().padStart(2, '0');
     }
     
-    // Reconstruct the formatted date
     let result = year;
     if (month) result += result ? '-' + month : month;
     if (day) result += result && month ? '-' + day : day;
@@ -80,42 +71,35 @@ const TimeFormatter = () => {
   };
 
   const formatTimeInput = (input: string) => {
-    // Remove non-numeric characters except colons
     let formattedInput = input.replace(/[^\d:]/g, '');
     
-    // Split by colons to get hours, minutes, seconds
     const parts = formattedInput.split(':');
     let hours = parts[0] || '';
     let minutes = parts.length > 1 ? parts[1] : '';
     let seconds = parts.length > 2 ? parts[2] : '';
     
-    // Ensure hours, minutes, seconds don't exceed their limits
     if (hours.length > 2) hours = hours.slice(0, 2);
     if (minutes.length > 2) minutes = minutes.slice(0, 2);
     if (seconds.length > 2) seconds = seconds.slice(0, 2);
     
-    // Format hours
     if (hours) {
       const hoursNum = parseInt(hours);
       if (hoursNum > 23) hours = '23';
       else if (hours.length === 1 && hoursNum >= 0) hours = hoursNum.toString().padStart(2, '0');
     }
     
-    // Format minutes
     if (minutes) {
       const minutesNum = parseInt(minutes);
       if (minutesNum > 59) minutes = '59';
       else if (minutes.length === 1 && minutesNum >= 0) minutes = minutesNum.toString().padStart(2, '0');
     }
     
-    // Format seconds
     if (seconds) {
       const secondsNum = parseInt(seconds);
       if (secondsNum > 59) seconds = '59';
       else if (seconds.length === 1 && secondsNum >= 0) seconds = secondsNum.toString().padStart(2, '0');
     }
     
-    // Reconstruct the formatted time
     let result = hours;
     if (minutes) result += result ? ':' + minutes : minutes;
     if (seconds) result += result && minutes ? ':' + seconds : seconds;
@@ -148,7 +132,6 @@ const TimeFormatter = () => {
       const result = format(date, formatString);
       setFormattedResult(result);
       
-      // Calculate week information
       const weekOfYear = format(date, "'Week' w 'of' yyyy");
       const weekOfMonth = getWeekOfMonth(date);
       setWeekInfo({
@@ -165,7 +148,6 @@ const TimeFormatter = () => {
     }
   };
 
-  // Function to get week of month
   const getWeekOfMonth = (date: Date) => {
     const firstDayOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
     const dayOfWeekOnFirst = firstDayOfMonth.getDay();
@@ -194,7 +176,6 @@ const TimeFormatter = () => {
   };
   
   const generatePythonCode = (date: Date, formatPattern: string) => {
-    // Convert format pattern from date-fns to Python's strftime
     let pythonFormat = formatPattern
       .replace(/yyyy/g, '%Y')
       .replace(/yy/g, '%y')
@@ -222,31 +203,20 @@ from datetime import datetime
 def format_datetime(date_str="${formatDateInput(dateInput)}", 
                    time_str="${formatTimeInput(timeInput)}", 
                    format_pattern="${pythonFormat}"):
-    # Combine date and time
     dt_str = f"{date_str} {time_str}"
-    
-    # Create datetime object
     dt = datetime.strptime(dt_str, "%Y-%m-%d %H:%M:%S")
-    
-    # Format according to the pattern
     formatted = dt.strftime(format_pattern)
-    
-    # Calculate week of year
     week_of_year = f"Week {dt.strftime('%U')} of {dt.strftime('%Y')}"
-    
-    # Calculate week of month
     day_of_month = int(dt.strftime('%d'))
     first_day = datetime(dt.year, dt.month, 1)
     day_of_week_on_first = int(first_day.strftime('%w'))
     week_of_month = (day_of_month + day_of_week_on_first - 1) // 7 + 1
-    
     return {
         "formatted_result": formatted,
         "week_of_year": week_of_year,
         "week_of_month": f"Week {week_of_month} of the month"
     }
 
-# Example usage
 result = format_datetime()
 print(f"Formatted result: {result['formatted_result']}")
 print(f"Week of year: {result['week_of_year']}")
@@ -270,37 +240,57 @@ print(f"Week of month: {result['week_of_month']}")
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-center space-x-2">
-        <FileText className="w-6 h-6 text-purple-600" />
-        <h2 className="text-xl font-bold text-gray-800">Time Formatter</h2>
+        <FileText className="w-6 h-6 text-purple-400" />
+        <h2 className="text-xl font-bold text-white">Time Formatter</h2>
       </div>
 
       <div className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-1">
-              Date (YYYY-MM-DD)
+              Date (yyyy-MM-dd)
             </label>
             <Input
               type="text"
-              placeholder="YYYY-MM-DD"
+              placeholder="yyyy-MM-dd"
               value={dateInput}
               onChange={(e) => setDateInput(e.target.value)}
               onBlur={() => setDateInput(formatDateInput(dateInput))}
+              onKeyDown={(e) => {
+                if (!/[\d-]/.test(e.key) && 
+                    e.key !== 'Backspace' && 
+                    e.key !== 'Delete' && 
+                    e.key !== 'ArrowLeft' && 
+                    e.key !== 'ArrowRight' &&
+                    e.key !== 'Tab') {
+                  e.preventDefault();
+                }
+              }}
               className="w-full bg-black/20 border-purple-500/20 text-gray-100 focus:border-purple-500"
             />
           </div>
           
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-1">
-              Time (HH:MM:SS)
+              Time (HH:mm:ss)
             </label>
             <div className="flex gap-2">
               <Input
                 type="text"
-                placeholder="HH:MM:SS"
+                placeholder="HH:mm:ss"
                 value={timeInput}
                 onChange={(e) => setTimeInput(e.target.value)}
                 onBlur={() => setTimeInput(formatTimeInput(timeInput))}
+                onKeyDown={(e) => {
+                  if (!/[\d:]/.test(e.key) && 
+                      e.key !== 'Backspace' && 
+                      e.key !== 'Delete' && 
+                      e.key !== 'ArrowLeft' && 
+                      e.key !== 'ArrowRight' &&
+                      e.key !== 'Tab') {
+                    e.preventDefault();
+                  }
+                }}
                 className="flex-1 bg-black/20 border-purple-500/20 text-gray-100 focus:border-purple-500"
               />
               <Button variant="outline" onClick={useCurrentTime} className="shrink-0 bg-black/20 border-purple-500/20 hover:bg-purple-500/20 text-gray-100">
@@ -383,7 +373,7 @@ print(f"Week of month: {result['week_of_month']}")
             </label>
             <div className="relative">
               <pre className="bg-black/30 rounded-md p-4 text-gray-200 text-xs overflow-auto">
-                {pythonCode}
+                <div dangerouslySetInnerHTML={{ __html: highlightPythonCode(pythonCode) }} />
               </pre>
               <Button
                 onClick={copyPythonCode}
