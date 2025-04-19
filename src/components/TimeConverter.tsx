@@ -232,6 +232,18 @@ const TimeConverter = () => {
     });
   };
 
+  // Add the missing copyPythonCode function
+  const copyPythonCode = () => {
+    if (pythonCode) {
+      navigator.clipboard.writeText(pythonCode);
+      toast({
+        title: "Python code copied to clipboard",
+        description: "The code has been copied and can be used in your Python environment.",
+        duration: 3000,
+      });
+    }
+  };
+
   const generatePythonCode = (dateTimeStr: string) => {
     const pythonCode = `
 from datetime import datetime
