@@ -1,5 +1,6 @@
+
 import React, { useState } from "react";
-import { formatInTimeZone, toZonedTime } from "date-fns-tz";
+import { formatInTimeZone } from "date-fns-tz";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -11,7 +12,7 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
 import { CalendarIcon, Copy, Code, Earth, Clock } from "lucide-react";
-import { format } from "date-fns";
+import { format, parse } from "date-fns";
 import { formatDateInput, formatTimeInput, highlightPythonCode } from "@/utils/dateTimeUtils";
 
 const TimeConverter = () => {
@@ -199,15 +200,15 @@ const TimeConverter = () => {
         return;
       }
 
+      // Parse date and time strings
       const [dateStr, timeStr] = fullDateTime.split(' ');
-      const [year, month, day] = dateStr.split('-').map(Number);
-      const [hour, minute, second] = timeStr.split(':').map(Number);
       
-      const dateObj = new Date(year, month - 1, day, hour, minute, second);
+      // Create a date in UTC, treating the input as if it's in the source timezone
+      // This way we avoid any local timezone influence
+      const parsedDate = parse(`${dateStr} ${timeStr}`, 'yyyy-MM-dd HH:mm:ss', new Date());
       
-      const sourceDate = toZonedTime(dateObj, sourceZone);
-      
-      const result = formatInTimeZone(sourceDate, targetZone, "yyyy-MM-dd HH:mm:ss");
+      // Format the date directly from source timezone to target timezone
+      const result = formatInTimeZone(parsedDate, sourceZone, "yyyy-MM-dd HH:mm:ss", { timeZone: targetZone });
       
       setConvertedResult(result);
       generatePythonCode(fullDateTime);
@@ -216,9 +217,9 @@ const TimeConverter = () => {
         input: fullDateTime,
         sourceZone,
         targetZone,
-        sourceDate: sourceDate.toString(),
+        sourceDate: parsedDate.toString(),
         result,
-        method: "Corrected conversion using toZonedTime"
+        method: "Direct timezone conversion using formatInTimeZone"
       });
     } catch (error) {
       console.error("Conversion error:", error);
@@ -253,19 +254,19 @@ def convert_time(date_time_str="${dateTimeStr}",
     Returns:
         Converted datetime string in format YYYY-MM-DD HH:MM:SS
     """
-    # Parse datetime string without timezone info (naive datetime)
-    dt = datetime.strptime(date_time_str, "%Y-%m-%d %H:%M:%S")
+    # Parse datetime string as a naive datetime (no timezone info)
+    naive_dt = datetime.strptime(date_time_str, "%Y-%m-%d %H:%M:%S")
     
-    # Localize the naive datetime to source timezone
+    # Explicitly set the timezone to the source timezone
     source_tz = pytz.timezone(source_zone)
-    localized_dt = source_tz.localize(dt)
+    source_dt = source_tz.localize(naive_dt)
     
     # Convert to target timezone
     target_tz = pytz.timezone(target_zone)
-    converted_dt = localized_dt.astimezone(target_tz)
+    target_dt = source_dt.astimezone(target_tz)
     
     # Format the result
-    return converted_dt.strftime("%Y-%m-%d %H:%M:%S")
+    return target_dt.strftime("%Y-%m-%d %H:%M:%S")
 
 # Example usage
 result = convert_time()
