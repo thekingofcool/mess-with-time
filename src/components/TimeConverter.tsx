@@ -48,11 +48,134 @@ const TimeConverter = () => {
   };
 
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setDateInput(e.target.value);
+    const input = e.target.value;
+    // Only allow digits and hyphens
+    const cleanInput = input.replace(/[^\d-]/g, '');
+    
+    // Process date format: YYYY-MM-DD
+    let formattedInput = '';
+    const digits = cleanInput.replace(/-/g, '');
+    
+    if (digits.length > 0) {
+      // Process year part (max 4 digits)
+      const year = digits.substring(0, 4);
+      formattedInput = year;
+      
+      if (year.length === 4) {
+        formattedInput += '-';
+        
+        // Process month part (max 2 digits)
+        if (digits.length > 4) {
+          let month = digits.substring(4, 6);
+          // Validate month (01-12)
+          if (month.length === 1) {
+            if (month > '1') {
+              month = '0' + month;
+            }
+          } else if (month.length === 2) {
+            if (month === '00') month = '01';
+            if (parseInt(month) > 12) month = '12';
+          }
+          
+          formattedInput += month;
+          
+          if (month.length === 2) {
+            formattedInput += '-';
+            
+            // Process day part (max 2 digits)
+            if (digits.length > 6) {
+              let day = digits.substring(6, 8);
+              
+              // Calculate days in month
+              const yearNum = parseInt(year);
+              const monthNum = parseInt(month);
+              const daysInMonth = [
+                31,
+                // February has 29 days in leap years
+                (yearNum % 4 === 0 && (yearNum % 100 !== 0 || yearNum % 400 === 0)) ? 29 : 28,
+                31, 30, 31, 30, 31, 31, 30, 31, 30, 31
+              ][monthNum - 1];
+              
+              // Validate day
+              if (day.length === 1) {
+                if (day > '3' || (monthNum === 2 && day > '2')) {
+                  day = '0' + day;
+                }
+              } else if (day.length === 2) {
+                if (day === '00') day = '01';
+                if (parseInt(day) > daysInMonth) day = daysInMonth.toString();
+              }
+              
+              formattedInput += day;
+            }
+          }
+        }
+      }
+    }
+    
+    setDateInput(formattedInput);
   };
 
   const handleTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setTimeInput(e.target.value);
+    const input = e.target.value;
+    // Only allow digits and colons
+    const cleanInput = input.replace(/[^\d:]/g, '');
+    
+    // Process time format: HH:MM:SS
+    let formattedInput = '';
+    const digits = cleanInput.replace(/:/g, '');
+    
+    if (digits.length > 0) {
+      // Process hours part (max 2 digits)
+      let hours = digits.substring(0, 2);
+      if (hours.length === 1) {
+        if (hours > '2') {
+          hours = '0' + hours;
+        }
+      } else if (hours.length === 2) {
+        if (parseInt(hours) > 23) hours = '23';
+      }
+      
+      formattedInput = hours;
+      
+      if (hours.length === 2) {
+        formattedInput += ':';
+        
+        // Process minutes part (max 2 digits)
+        if (digits.length > 2) {
+          let minutes = digits.substring(2, 4);
+          if (minutes.length === 1) {
+            if (minutes > '5') {
+              minutes = '0' + minutes;
+            }
+          } else if (minutes.length === 2) {
+            if (parseInt(minutes) > 59) minutes = '59';
+          }
+          
+          formattedInput += minutes;
+          
+          if (minutes.length === 2) {
+            formattedInput += ':';
+            
+            // Process seconds part (max 2 digits)
+            if (digits.length > 4) {
+              let seconds = digits.substring(4, 6);
+              if (seconds.length === 1) {
+                if (seconds > '5') {
+                  seconds = '0' + seconds;
+                }
+              } else if (seconds.length === 2) {
+                if (parseInt(seconds) > 59) seconds = '59';
+              }
+              
+              formattedInput += seconds;
+            }
+          }
+        }
+      }
+    }
+    
+    setTimeInput(formattedInput);
   };
 
   const getFullDateTime = () => {
@@ -92,10 +215,56 @@ const TimeConverter = () => {
         return;
       }
       
-      const result = formatInTimeZone(date, targetZone, "yyyy-MM-dd HH:mm:ss");
+      const sourceFormatter = new Intl.DateTimeFormat('en-US', {
+        timeZone: sourceZone,
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+      });
+      
+      const sourceParts = sourceFormatter.formatToParts(date);
+      const sourceDateObj: Record<string, string> = {};
+      sourceParts.forEach(part => {
+        if (part.type !== 'literal') {
+          sourceDateObj[part.type] = part.value;
+        }
+      });
+      
+      const sourceISOString = 
+        `${sourceDateObj.year}-${sourceDateObj.month}-${sourceDateObj.day}T` + 
+        `${sourceDateObj.hour}:${sourceDateObj.minute}:${sourceDateObj.second}`;
+      
+      const sourceDate = new Date(sourceISOString);
+      
+      const targetFormatter = new Intl.DateTimeFormat('en-US', {
+        timeZone: targetZone,
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+      });
+      
+      const formattedResult = targetFormatter.formatToParts(sourceDate);
+      const resultObj: Record<string, string> = {};
+      formattedResult.forEach(part => {
+        if (part.type !== 'literal') {
+          resultObj[part.type] = part.value;
+        }
+      });
+
+      const result = `${resultObj.year}-${resultObj.month}-${resultObj.day} ${resultObj.hour}:${resultObj.minute}:${resultObj.second}`;
+      
       setConvertedResult(result);
       generatePythonCode(fullDateTime);
     } catch (error) {
+      console.error("转换错误:", error);
       setConvertedResult("Invalid time format");
       setPythonCode("");
     }
@@ -116,6 +285,17 @@ import pytz
 
 def convert_time(date_time_str="${dateTimeStr}",
                 source_zone="${sourceZone}", target_zone="${targetZone}"):
+    """
+    Convert datetime from one timezone to another
+    
+    Parameters:
+        date_time_str: Date time string in format YYYY-MM-DD HH:MM:SS
+        source_zone: Source timezone name
+        target_zone: Target timezone name
+        
+    Returns:
+        Converted datetime string in format YYYY-MM-DD HH:MM:SS
+    """
     # Parse datetime string
     dt = datetime.strptime(date_time_str, "%Y-%m-%d %H:%M:%S")
     
@@ -157,7 +337,7 @@ print(f"Converted time: {result}")
       </div>
 
       <div className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-1">
               Date (yyyy-MM-dd)
@@ -168,8 +348,8 @@ print(f"Converted time: {result}")
                 placeholder="yyyy-MM-dd"
                 value={dateInput}
                 onChange={handleDateChange}
-                onBlur={() => setDateInput(formatDateInput(dateInput))}
                 onKeyDown={(e) => {
+                  // Allow digits, hyphens, backspace, delete, arrow keys and tab
                   if (!/[\d-]/.test(e.key) && 
                       e.key !== 'Backspace' && 
                       e.key !== 'Delete' && 
@@ -193,8 +373,8 @@ print(f"Converted time: {result}")
               placeholder="HH:mm:ss"
               value={timeInput}
               onChange={handleTimeChange}
-              onBlur={() => setTimeInput(formatTimeInput(timeInput))}
               onKeyDown={(e) => {
+                // Allow digits, colons, backspace, delete, arrow keys and tab
                 if (!/[\d:]/.test(e.key) && 
                     e.key !== 'Backspace' && 
                     e.key !== 'Delete' && 
@@ -209,7 +389,7 @@ print(f"Converted time: {result}")
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-1">
               Source Time Zone
@@ -259,18 +439,18 @@ print(f"Converted time: {result}")
             <label className="block text-sm font-medium text-gray-300 mb-1">
               Converted Result
             </label>
-            <div className="flex gap-2">
+            <div className="flex flex-col sm:flex-row gap-2">
               <Input
                 value={convertedResult}
                 readOnly
-                className="bg-black/20 border-purple-500/20 text-gray-100"
+                className="w-full bg-black/20 border-purple-500/20 text-gray-100"
               />
               <Button
                 onClick={() => copyToClipboard(convertedResult)}
                 variant="outline"
-                className="shrink-0 border-purple-500/20 hover:bg-purple-500/20"
+                className="sm:shrink-0 border-purple-500/20 hover:bg-purple-500/20"
               >
-                <Copy className="h-4 w-4" />
+                <Copy className="h-4 w-4 mr-1" /> Copy
               </Button>
             </div>
           </div>
@@ -282,7 +462,7 @@ print(f"Converted time: {result}")
               Python Code
             </label>
             <div className="relative">
-              <pre className="bg-black/30 rounded-md p-4 overflow-auto">
+              <pre className="bg-black/30 rounded-md p-4 overflow-auto max-h-[300px]">
                 <code className="text-gray-200 text-xs" dangerouslySetInnerHTML={{ __html: highlightPythonCode(pythonCode) }} />
               </pre>
               <Button

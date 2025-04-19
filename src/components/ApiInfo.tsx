@@ -1,9 +1,11 @@
-
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Globe, Key, Copy, ChevronRight } from "lucide-react";
+import { Globe, Key, Copy, ChevronRight, ExternalLink } from "lucide-react";
 import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
+import { Link } from "react-router-dom";
+
+const BASE_URL = window.location.origin;
 
 const ApiInfo = () => {
   const [apiKey, setApiKey] = useState<string>("");
@@ -26,6 +28,10 @@ const ApiInfo = () => {
       duration: 3000,
     });
   };
+  
+  const openEndpoint = (url: string) => {
+    window.open(url, '_blank');
+  };
 
   return (
     <div className="space-y-6">
@@ -41,51 +47,81 @@ const ApiInfo = () => {
           <div>
             <div className="flex justify-between items-center mb-1">
               <div className="font-medium text-gray-200">Current Time</div>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={() => copyToClipboard("https://messwithtime.com/api/v1/current")}
-                className="text-gray-300 hover:text-white"
-              >
-                <Copy className="h-4 w-4" />
-              </Button>
+              <div className="flex gap-2">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => openEndpoint(`${BASE_URL}/api/v1/current`)}
+                  className="text-gray-300 hover:text-white"
+                >
+                  <ExternalLink className="h-4 w-4" />
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => copyToClipboard(`${BASE_URL}/api/v1/current`)}
+                  className="text-gray-300 hover:text-white"
+                >
+                  <Copy className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
             <div className="bg-black/30 p-2 rounded text-sm font-mono text-gray-300">
-              GET https://messwithtime.com/api/v1/current
+              GET {BASE_URL}/api/v1/current
             </div>
           </div>
           
           <div>
             <div className="flex justify-between items-center mb-1">
               <div className="font-medium text-gray-200">Convert Timestamp</div>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={() => copyToClipboard("https://messwithtime.com/api/v1/convert?timestamp=1618840800")}
-                className="text-gray-300 hover:text-white"
-              >
-                <Copy className="h-4 w-4" />
-              </Button>
+              <div className="flex gap-2">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => openEndpoint(`${BASE_URL}/api/v1/convert?timestamp=1618840800`)}
+                  className="text-gray-300 hover:text-white"
+                >
+                  <ExternalLink className="h-4 w-4" />
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => copyToClipboard(`${BASE_URL}/api/v1/convert?timestamp=1618840800`)}
+                  className="text-gray-300 hover:text-white"
+                >
+                  <Copy className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
             <div className="bg-black/30 p-2 rounded text-sm font-mono text-gray-300">
-              GET https://messwithtime.com/api/v1/convert?timestamp=1618840800
+              GET {BASE_URL}/api/v1/convert?timestamp=1618840800
             </div>
           </div>
           
           <div>
             <div className="flex justify-between items-center mb-1">
               <div className="font-medium text-gray-200">Time Zone Conversion</div>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={() => copyToClipboard("https://messwithtime.com/api/v1/timezone?time=2023-04-19T15:30:00&from=UTC&to=America/New_York")}
-                className="text-gray-300 hover:text-white"
-              >
-                <Copy className="h-4 w-4" />
-              </Button>
+              <div className="flex gap-2">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => openEndpoint(`${BASE_URL}/api/v1/timezone?time=2023-04-19T15:30:00&from=UTC&to=America/New_York`)}
+                  className="text-gray-300 hover:text-white"
+                >
+                  <ExternalLink className="h-4 w-4" />
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => copyToClipboard(`${BASE_URL}/api/v1/timezone?time=2023-04-19T15:30:00&from=UTC&to=America/New_York`)}
+                  className="text-gray-300 hover:text-white"
+                >
+                  <Copy className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
             <div className="bg-black/30 p-2 rounded text-sm font-mono break-all text-gray-300">
-              GET https://messwithtime.com/api/v1/timezone?time=2023-04-19T15:30:00&from=UTC&to=America/New_York
+              GET {BASE_URL}/api/v1/timezone?time=2023-04-19T15:30:00&from=UTC&to=America/New_York
             </div>
           </div>
         </div>
@@ -150,9 +186,11 @@ const ApiInfo = () => {
           For detailed API documentation, including all endpoints, parameters, and response formats, 
           please visit our comprehensive API reference.
         </p>
-        <Button variant="outline" className="w-full border-purple-500/20 text-gray-100 hover:bg-purple-500/20">
-          View Full API Documentation
-        </Button>
+        <Link to="/api-docs">
+          <Button variant="outline" className="w-full border-purple-500/20 text-gray-100 hover:bg-purple-500/20">
+            View Full API Documentation
+          </Button>
+        </Link>
       </div>
     </div>
   );

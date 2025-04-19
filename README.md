@@ -1,56 +1,17 @@
-# Welcome to your Lovable project
+# Mess with Time
 
-## Project info
+A comprehensive time manipulation toolkit that allows users to convert between time zones, work with timestamps, perform time calculations, and more.
 
-**URL**: https://lovable.dev/projects/1a36212c-1089-4fd2-9dd8-31bb96cb0d9c
+## Features
 
-## How can I edit this code?
+- **Time Zone Converter**: Convert times between different time zones
+- **Timestamp Converter**: Convert between human-readable dates and Unix timestamps
+- **Time Calculator**: Calculate time differences or add/subtract time intervals
+- **Current Time**: Display current time in various formats and time zones
+- **Relative Time**: Calculate time differences between dates
+- **Time Formatter**: Format dates and times in different styles
 
-There are several ways of editing your application.
-
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/1a36212c-1089-4fd2-9dd8-31bb96cb0d9c) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
-
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
+## Technologies Used
 
 This project is built with:
 
@@ -59,15 +20,45 @@ This project is built with:
 - React
 - shadcn-ui
 - Tailwind CSS
+- date-fns & date-fns-tz
 
-## How can I deploy this project?
+## Getting Started
 
-Simply open [Lovable](https://lovable.dev/projects/1a36212c-1089-4fd2-9dd8-31bb96cb0d9c) and click on Share -> Publish.
+Follow these steps to set up the project locally:
 
-## Can I connect a custom domain to my Lovable project?
+```sh
+# Clone the repository
+git clone <YOUR_GIT_URL>
 
-Yes, you can!
+# Navigate to the project directory
+cd mess-with-time
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+# Install dependencies
+npm install
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+# Start the development server
+npm run dev
+```
+
+## Development
+
+The app is structured as follows:
+
+- `src/components/`: Contains the main components for each time tool
+- `src/utils/`: Utility functions for date and time manipulation
+- `src/pages/`: Page components (Index, NotFound)
+- `src/lib/`: shadcn-ui component configurations
+
+## Building for Production
+
+To create a production build:
+
+```sh
+npm run build
+```
+
+To preview the production build locally:
+
+```sh
+npm run preview
+```

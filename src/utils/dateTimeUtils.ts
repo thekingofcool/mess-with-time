@@ -80,14 +80,14 @@ export const highlightPythonCode = (code: string) => {
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;");
 
-  // Highlight strings (fixed the regex to properly capture entire strings)
-  highlightedCode = highlightedCode.replace(/(["'])(.*?)\1/g, (match) => 
-    `<span style="color: #F59E0B">${match}</span>`
-  );
-  
-  // Highlight comments
+  // Highlight comments first
   highlightedCode = highlightedCode.replace(/(#.*?)(?=\n|$)/g, (match) => 
     `<span style="color: #9CA3AF">${match}</span>`
+  );
+  
+  // Highlight strings with proper escaping
+  highlightedCode = highlightedCode.replace(/(["'])((?:\\\1|(?!\1).)*?)\1/g, (match) => 
+    `<span style="color: #F59E0B">${match}</span>`
   );
   
   // Highlight numbers

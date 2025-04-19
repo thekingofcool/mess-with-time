@@ -34,6 +34,136 @@ const TimeCalculator = () => {
   
   const { toast } = useToast();
 
+  // Functions for handling date and time input formatting
+  const handleDateInput = (value: string, setter: React.Dispatch<React.SetStateAction<string>>) => {
+    // Only allow digits and hyphens
+    const cleanInput = value.replace(/[^\d-]/g, '');
+    
+    // Process date format: YYYY-MM-DD
+    let formattedInput = '';
+    const digits = cleanInput.replace(/-/g, '');
+    
+    if (digits.length > 0) {
+      // Process year part (max 4 digits)
+      const year = digits.substring(0, 4);
+      formattedInput = year;
+      
+      if (year.length === 4) {
+        formattedInput += '-';
+        
+        // Process month part (max 2 digits)
+        if (digits.length > 4) {
+          let month = digits.substring(4, 6);
+          // Validate month (01-12)
+          if (month.length === 1) {
+            if (month > '1') {
+              month = '0' + month;
+            }
+          } else if (month.length === 2) {
+            if (month === '00') month = '01';
+            if (parseInt(month) > 12) month = '12';
+          }
+          
+          formattedInput += month;
+          
+          if (month.length === 2) {
+            formattedInput += '-';
+            
+            // Process day part (max 2 digits)
+            if (digits.length > 6) {
+              let day = digits.substring(6, 8);
+              
+              // Calculate days in month
+              const yearNum = parseInt(year);
+              const monthNum = parseInt(month);
+              const daysInMonth = [
+                31,
+                // February has 29 days in leap years
+                (yearNum % 4 === 0 && (yearNum % 100 !== 0 || yearNum % 400 === 0)) ? 29 : 28,
+                31, 30, 31, 30, 31, 31, 30, 31, 30, 31
+              ][monthNum - 1];
+              
+              // Validate day
+              if (day.length === 1) {
+                if (day > '3' || (monthNum === 2 && day > '2')) {
+                  day = '0' + day;
+                }
+              } else if (day.length === 2) {
+                if (day === '00') day = '01';
+                if (parseInt(day) > daysInMonth) day = daysInMonth.toString();
+              }
+              
+              formattedInput += day;
+            }
+          }
+        }
+      }
+    }
+    
+    setter(formattedInput);
+  };
+
+  const handleTimeInput = (value: string, setter: React.Dispatch<React.SetStateAction<string>>) => {
+    // Only allow digits and colons
+    const cleanInput = value.replace(/[^\d:]/g, '');
+    
+    // Process time format: HH:MM:SS
+    let formattedInput = '';
+    const digits = cleanInput.replace(/:/g, '');
+    
+    if (digits.length > 0) {
+      // Process hours part (max 2 digits)
+      let hours = digits.substring(0, 2);
+      if (hours.length === 1) {
+        if (hours > '2') {
+          hours = '0' + hours;
+        }
+      } else if (hours.length === 2) {
+        if (parseInt(hours) > 23) hours = '23';
+      }
+      
+      formattedInput = hours;
+      
+      if (hours.length === 2) {
+        formattedInput += ':';
+        
+        // Process minutes part (max 2 digits)
+        if (digits.length > 2) {
+          let minutes = digits.substring(2, 4);
+          if (minutes.length === 1) {
+            if (minutes > '5') {
+              minutes = '0' + minutes;
+            }
+          } else if (minutes.length === 2) {
+            if (parseInt(minutes) > 59) minutes = '59';
+          }
+          
+          formattedInput += minutes;
+          
+          if (minutes.length === 2) {
+            formattedInput += ':';
+            
+            // Process seconds part (max 2 digits)
+            if (digits.length > 4) {
+              let seconds = digits.substring(4, 6);
+              if (seconds.length === 1) {
+                if (seconds > '5') {
+                  seconds = '0' + seconds;
+                }
+              } else if (seconds.length === 2) {
+                if (parseInt(seconds) > 59) seconds = '59';
+              }
+              
+              formattedInput += seconds;
+            }
+          }
+        }
+      }
+    }
+    
+    setter(formattedInput);
+  };
+
   const calculateDifference = () => {
     try {
       const start = parseDateTime(startDateInput, startTimeInput);
@@ -206,7 +336,7 @@ print(f"Result: {result}")
         </TabsList>
         
         <TabsContent value="difference" className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-1">
                 Start Date (yyyy-MM-dd)
@@ -215,10 +345,9 @@ print(f"Result: {result}")
                 type="text"
                 placeholder="yyyy-MM-dd"
                 value={startDateInput}
-                onChange={(e) => setStartDateInput(e.target.value)}
-                onBlur={() => setStartDateInput(formatDateInput(startDateInput))}
+                onChange={(e) => handleDateInput(e.target.value, setStartDateInput)}
                 onKeyDown={(e) => {
-                  // Allow only digits, hyphens, and control keys
+                  // Allow digits, hyphens, backspace, delete, arrow keys and tab
                   if (!/[\d-]/.test(e.key) && 
                       e.key !== 'Backspace' && 
                       e.key !== 'Delete' && 
@@ -240,10 +369,9 @@ print(f"Result: {result}")
                 type="text"
                 placeholder="HH:mm:ss"
                 value={startTimeInput}
-                onChange={(e) => setStartTimeInput(e.target.value)}
-                onBlur={() => setStartTimeInput(formatTimeInput(startTimeInput))}
+                onChange={(e) => handleTimeInput(e.target.value, setStartTimeInput)}
                 onKeyDown={(e) => {
-                  // Allow only digits, colons, and control keys
+                  // Allow digits, colons, backspace, delete, arrow keys and tab
                   if (!/[\d:]/.test(e.key) && 
                       e.key !== 'Backspace' && 
                       e.key !== 'Delete' && 
@@ -258,7 +386,7 @@ print(f"Result: {result}")
             </div>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-1">
                 End Date (yyyy-MM-dd)
@@ -267,10 +395,9 @@ print(f"Result: {result}")
                 type="text"
                 placeholder="yyyy-MM-dd"
                 value={endDateInput}
-                onChange={(e) => setEndDateInput(e.target.value)}
-                onBlur={() => setEndDateInput(formatDateInput(endDateInput))}
+                onChange={(e) => handleDateInput(e.target.value, setEndDateInput)}
                 onKeyDown={(e) => {
-                  // Allow only digits, hyphens, and control keys
+                  // Allow digits, hyphens, backspace, delete, arrow keys and tab
                   if (!/[\d-]/.test(e.key) && 
                       e.key !== 'Backspace' && 
                       e.key !== 'Delete' && 
@@ -292,10 +419,9 @@ print(f"Result: {result}")
                 type="text"
                 placeholder="HH:mm:ss"
                 value={endTimeInput}
-                onChange={(e) => setEndTimeInput(e.target.value)}
-                onBlur={() => setEndTimeInput(formatTimeInput(endTimeInput))}
+                onChange={(e) => handleTimeInput(e.target.value, setEndTimeInput)}
                 onKeyDown={(e) => {
-                  // Allow only digits, colons, and control keys
+                  // Allow digits, colons, backspace, delete, arrow keys and tab
                   if (!/[\d:]/.test(e.key) && 
                       e.key !== 'Backspace' && 
                       e.key !== 'Delete' && 
@@ -319,10 +445,10 @@ print(f"Result: {result}")
           
           {diffResult && (
             <div className="mt-4 p-4 bg-black/20 rounded-md">
-              <div className="flex justify-between items-center">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                 <div>
                   <div className="text-sm text-gray-300 mb-1">Result</div>
-                  <div className="text-lg font-medium text-gray-100">{diffResult}</div>
+                  <div className="text-base sm:text-lg font-medium text-gray-100 break-words">{diffResult}</div>
                 </div>
                 <Button 
                   variant="outline"
@@ -330,7 +456,7 @@ print(f"Result: {result}")
                   onClick={() => copyToClipboard(diffResult)}
                   className="bg-black/20 border-purple-500/20 hover:bg-purple-500/20"
                 >
-                  <Copy className="h-4 w-4 text-gray-300" />
+                  <Copy className="h-4 w-4 mr-1 text-gray-300" /> Copy
                 </Button>
               </div>
             </div>
@@ -342,7 +468,7 @@ print(f"Result: {result}")
                 Python Code
               </label>
               <div className="relative">
-                <pre className="bg-black/30 rounded-md p-4 overflow-auto">
+                <pre className="bg-black/30 rounded-md p-4 overflow-auto max-h-[300px]">
                   <div className="text-gray-200 text-xs" dangerouslySetInnerHTML={{ __html: highlightPythonCode(diffPythonCode) }} />
                 </pre>
                 <Button
@@ -358,7 +484,7 @@ print(f"Result: {result}")
         </TabsContent>
         
         <TabsContent value="addition" className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-1">
                 Base Date (yyyy-MM-dd)
@@ -367,10 +493,9 @@ print(f"Result: {result}")
                 type="text"
                 placeholder="yyyy-MM-dd"
                 value={baseDateInput}
-                onChange={(e) => setBaseDateInput(e.target.value)}
-                onBlur={() => setBaseDateInput(formatDateInput(baseDateInput))}
+                onChange={(e) => handleDateInput(e.target.value, setBaseDateInput)}
                 onKeyDown={(e) => {
-                  // Allow only digits, hyphens, and control keys
+                  // Allow digits, hyphens, backspace, delete, arrow keys and tab
                   if (!/[\d-]/.test(e.key) && 
                       e.key !== 'Backspace' && 
                       e.key !== 'Delete' && 
@@ -392,10 +517,9 @@ print(f"Result: {result}")
                 type="text"
                 placeholder="HH:mm:ss"
                 value={baseTimeInput}
-                onChange={(e) => setBaseTimeInput(e.target.value)}
-                onBlur={() => setBaseTimeInput(formatTimeInput(baseTimeInput))}
+                onChange={(e) => handleTimeInput(e.target.value, setBaseTimeInput)}
                 onKeyDown={(e) => {
-                  // Allow only digits, colons, and control keys
+                  // Allow digits, colons, backspace, delete, arrow keys and tab
                   if (!/[\d:]/.test(e.key) && 
                       e.key !== 'Backspace' && 
                       e.key !== 'Delete' && 
@@ -410,12 +534,12 @@ print(f"Result: {result}")
             </div>
           </div>
           
-          <div className="flex items-center gap-2">
+          <div className="flex flex-col sm:flex-row items-center gap-2">
             <Select 
               value={operation} 
               onValueChange={(v) => setOperation(v as "add" | "subtract")}
             >
-              <SelectTrigger className="w-24 bg-black/20 border-purple-500/20 text-gray-100">
+              <SelectTrigger className="w-full sm:w-24 bg-black/20 border-purple-500/20 text-gray-100">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -438,12 +562,12 @@ print(f"Result: {result}")
               type="number"
               value={value}
               onChange={(e) => setValue(e.target.value)}
-              className="flex-1 bg-black/20 border-purple-500/20 text-gray-100"
+              className="w-full sm:flex-1 bg-black/20 border-purple-500/20 text-gray-100"
               min="1"
             />
             
             <Select value={unit} onValueChange={setUnit}>
-              <SelectTrigger className="w-32 bg-black/20 border-purple-500/20 text-gray-100">
+              <SelectTrigger className="w-full sm:w-32 bg-black/20 border-purple-500/20 text-gray-100">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -463,10 +587,10 @@ print(f"Result: {result}")
           
           {addResult && (
             <div className="mt-4 p-4 bg-black/20 rounded-md">
-              <div className="flex justify-between items-center">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                 <div>
                   <div className="text-sm text-gray-300 mb-1">Result</div>
-                  <div className="text-lg font-medium text-gray-100">{addResult}</div>
+                  <div className="text-base sm:text-lg font-medium text-gray-100 break-words">{addResult}</div>
                 </div>
                 <Button 
                   variant="outline"
@@ -474,7 +598,7 @@ print(f"Result: {result}")
                   onClick={() => copyToClipboard(addResult)}
                   className="bg-black/20 border-purple-500/20 hover:bg-purple-500/20"
                 >
-                  <Copy className="h-4 w-4 text-gray-300" />
+                  <Copy className="h-4 w-4 mr-1 text-gray-300" /> Copy
                 </Button>
               </div>
             </div>
@@ -486,7 +610,7 @@ print(f"Result: {result}")
                 Python Code
               </label>
               <div className="relative">
-                <pre className="bg-black/30 rounded-md p-4 overflow-auto">
+                <pre className="bg-black/30 rounded-md p-4 overflow-auto max-h-[300px]">
                   <div className="text-gray-200 text-xs" dangerouslySetInnerHTML={{ __html: highlightPythonCode(addPythonCode) }} />
                 </pre>
                 <Button

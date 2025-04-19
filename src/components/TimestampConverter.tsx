@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { format, fromUnixTime } from "date-fns";
 import { Button } from "@/components/ui/button";
@@ -24,11 +23,134 @@ const TimestampConverter = () => {
   const { toast } = useToast();
 
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setDateInput(e.target.value);
+    const input = e.target.value;
+    // Only allow digits and hyphens
+    const cleanInput = input.replace(/[^\d-]/g, '');
+    
+    // Process date format: YYYY-MM-DD
+    let formattedInput = '';
+    const digits = cleanInput.replace(/-/g, '');
+    
+    if (digits.length > 0) {
+      // Process year part (max 4 digits)
+      const year = digits.substring(0, 4);
+      formattedInput = year;
+      
+      if (year.length === 4) {
+        formattedInput += '-';
+        
+        // Process month part (max 2 digits)
+        if (digits.length > 4) {
+          let month = digits.substring(4, 6);
+          // Validate month (01-12)
+          if (month.length === 1) {
+            if (month > '1') {
+              month = '0' + month;
+            }
+          } else if (month.length === 2) {
+            if (month === '00') month = '01';
+            if (parseInt(month) > 12) month = '12';
+          }
+          
+          formattedInput += month;
+          
+          if (month.length === 2) {
+            formattedInput += '-';
+            
+            // Process day part (max 2 digits)
+            if (digits.length > 6) {
+              let day = digits.substring(6, 8);
+              
+              // Calculate days in month
+              const yearNum = parseInt(year);
+              const monthNum = parseInt(month);
+              const daysInMonth = [
+                31,
+                // February has 29 days in leap years
+                (yearNum % 4 === 0 && (yearNum % 100 !== 0 || yearNum % 400 === 0)) ? 29 : 28,
+                31, 30, 31, 30, 31, 31, 30, 31, 30, 31
+              ][monthNum - 1];
+              
+              // Validate day
+              if (day.length === 1) {
+                if (day > '3' || (monthNum === 2 && day > '2')) {
+                  day = '0' + day;
+                }
+              } else if (day.length === 2) {
+                if (day === '00') day = '01';
+                if (parseInt(day) > daysInMonth) day = daysInMonth.toString();
+              }
+              
+              formattedInput += day;
+            }
+          }
+        }
+      }
+    }
+    
+    setDateInput(formattedInput);
   };
 
   const handleTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setTimeInput(e.target.value);
+    const input = e.target.value;
+    // Only allow digits and colons
+    const cleanInput = input.replace(/[^\d:]/g, '');
+    
+    // Process time format: HH:MM:SS
+    let formattedInput = '';
+    const digits = cleanInput.replace(/:/g, '');
+    
+    if (digits.length > 0) {
+      // Process hours part (max 2 digits)
+      let hours = digits.substring(0, 2);
+      if (hours.length === 1) {
+        if (hours > '2') {
+          hours = '0' + hours;
+        }
+      } else if (hours.length === 2) {
+        if (parseInt(hours) > 23) hours = '23';
+      }
+      
+      formattedInput = hours;
+      
+      if (hours.length === 2) {
+        formattedInput += ':';
+        
+        // Process minutes part (max 2 digits)
+        if (digits.length > 2) {
+          let minutes = digits.substring(2, 4);
+          if (minutes.length === 1) {
+            if (minutes > '5') {
+              minutes = '0' + minutes;
+            }
+          } else if (minutes.length === 2) {
+            if (parseInt(minutes) > 59) minutes = '59';
+          }
+          
+          formattedInput += minutes;
+          
+          if (minutes.length === 2) {
+            formattedInput += ':';
+            
+            // Process seconds part (max 2 digits)
+            if (digits.length > 4) {
+              let seconds = digits.substring(4, 6);
+              if (seconds.length === 1) {
+                if (seconds > '5') {
+                  seconds = '0' + seconds;
+                }
+              } else if (seconds.length === 2) {
+                if (parseInt(seconds) > 59) seconds = '59';
+              }
+              
+              formattedInput += seconds;
+            }
+          }
+        }
+      }
+    }
+    
+    setTimeInput(formattedInput);
   };
 
   const convertToTimestamp = () => {
@@ -212,9 +334,9 @@ print(f"Datetime: {result}")
       </div>
 
       <div className="space-y-4">
-        <div className="flex items-center gap-2">
+        <div className="flex flex-col sm:flex-row items-center gap-2">
           <Select value={timestampType} onValueChange={setTimestampType}>
-            <SelectTrigger className="w-40 bg-black/20 border-purple-500/20 text-gray-100">
+            <SelectTrigger className="w-full sm:w-40 bg-black/20 border-purple-500/20 text-gray-100">
               <SelectValue placeholder="Timestamp type" />
             </SelectTrigger>
             <SelectContent>
@@ -226,7 +348,7 @@ print(f"Datetime: {result}")
           <Button 
             onClick={getCurrentTimestamp} 
             size="sm" 
-            className="bg-black/20 border-purple-500/20 hover:bg-purple-500/20 text-gray-100"
+            className="w-full sm:w-auto bg-black/20 border-purple-500/20 hover:bg-purple-500/20 text-gray-100"
           >
             <RefreshCcw className="h-4 w-4 mr-1" /> Current
           </Button>
@@ -236,7 +358,7 @@ print(f"Datetime: {result}")
           <label className="block text-sm font-medium text-gray-300 mb-1">
             Timestamp
           </label>
-          <div className="flex gap-2">
+          <div className="flex flex-col sm:flex-row gap-2">
             <Input
               value={timestamp}
               onChange={(e) => setTimestamp(e.target.value)}
@@ -255,20 +377,19 @@ print(f"Datetime: {result}")
                 }
               }}
               placeholder={timestampType === "iso8601" ? "YYYY-MM-DDTHH:mm:ssZ" : "Enter timestamp"}
-              className="flex-1 bg-black/20 border-purple-500/20 text-gray-100 focus:border-purple-500"
+              className="w-full bg-black/20 border-purple-500/20 text-gray-100 focus:border-purple-500"
             />
             <Button
               variant="outline"
-              size="icon"
+              className="sm:shrink-0 bg-black/20 border-purple-500/20 hover:bg-purple-500/20"
               onClick={() => copyToClipboard(timestamp)}
-              className="shrink-0 bg-black/20 border-purple-500/20 hover:bg-purple-500/20"
             >
-              <Copy className="h-4 w-4 text-gray-300" />
+              <Copy className="h-4 w-4 mr-1 text-gray-300" /> Copy
             </Button>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-1">
               Date (yyyy-MM-dd)
@@ -278,9 +399,8 @@ print(f"Datetime: {result}")
               placeholder="yyyy-MM-dd"
               value={dateInput}
               onChange={handleDateChange}
-              onBlur={() => setDateInput(formatDateInput(dateInput))}
               onKeyDown={(e) => {
-                // Allow only digits, hyphens, and control keys
+                // Allow digits, hyphens, backspace, delete, arrow keys and tab
                 if (!/[\d-]/.test(e.key) && 
                     e.key !== 'Backspace' && 
                     e.key !== 'Delete' && 
@@ -303,9 +423,8 @@ print(f"Datetime: {result}")
               placeholder="HH:mm:ss"
               value={timeInput}
               onChange={handleTimeChange}
-              onBlur={() => setTimeInput(formatTimeInput(timeInput))}
               onKeyDown={(e) => {
-                // Allow only digits, colons, and control keys
+                // Allow digits, colons, backspace, delete, arrow keys and tab
                 if (!/[\d:]/.test(e.key) && 
                     e.key !== 'Backspace' && 
                     e.key !== 'Delete' && 
@@ -320,7 +439,7 @@ print(f"Datetime: {result}")
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Button
             onClick={convertToTimestamp}
             className="bg-black/20 border-purple-500/20 hover:bg-purple-500/20 text-gray-100"
@@ -340,19 +459,18 @@ print(f"Datetime: {result}")
             <label className="block text-sm font-medium text-gray-300 mb-1">
               Converted Result
             </label>
-            <div className="flex gap-2">
+            <div className="flex flex-col sm:flex-row gap-2">
               <Input
                 value={convertedResult}
                 readOnly
-                className="flex-1 bg-black/20 border-purple-500/20 text-gray-100"
+                className="w-full bg-black/20 border-purple-500/20 text-gray-100"
               />
               <Button
                 variant="outline"
-                size="icon"
                 onClick={() => copyToClipboard(convertedResult)}
-                className="shrink-0 bg-black/20 border-purple-500/20 hover:bg-purple-500/20"
+                className="sm:shrink-0 bg-black/20 border-purple-500/20 hover:bg-purple-500/20"
               >
-                <Copy className="h-4 w-4 text-gray-300" />
+                <Copy className="h-4 w-4 mr-1 text-gray-300" /> Copy
               </Button>
             </div>
           </div>
@@ -364,7 +482,7 @@ print(f"Datetime: {result}")
               Python Code
             </label>
             <div className="relative">
-              <pre className="bg-black/30 rounded-md p-4 overflow-auto">
+              <pre className="bg-black/30 rounded-md p-4 overflow-auto max-h-[300px]">
                 <div className="text-gray-200 text-xs" dangerouslySetInnerHTML={{ __html: highlightPythonCode(pythonCode) }} />
               </pre>
               <Button
