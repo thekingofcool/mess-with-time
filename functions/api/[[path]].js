@@ -1,3 +1,4 @@
+
 /**
  * Not Today API - Cloudflare Pages Functions
  * Handles API requests for time-related functions
@@ -63,7 +64,14 @@ function jsonResponse(data, status = 200) {
 export async function onRequest(context) {
   const request = context.request;
   const url = new URL(request.url);
-  const path = url.pathname.replace('/api/', '');
+  const path = url.pathname.replace('/api/', '').replace('/api', '');
+  
+  // Debug info
+  console.log("API Request:", {
+    url: request.url,
+    path: path,
+    fullPath: url.pathname
+  });
   
   // Handle CORS preflight
   if (request.method === 'OPTIONS') {
@@ -74,7 +82,7 @@ export async function onRequest(context) {
   }
   
   // API endpoints
-  if (path === 'v1/current') {
+  if (path === 'v1/current' || path === '/v1/current') {
     const now = new Date();
     return jsonResponse({
       timestamp: Math.floor(now.getTime() / 1000),
@@ -83,7 +91,7 @@ export async function onRequest(context) {
       timezone: 'UTC', // Functions run in UTC
     });
   } 
-  else if (path === 'v1/convert') {
+  else if (path === 'v1/convert' || path === '/v1/convert') {
     const timestamp = url.searchParams.get('timestamp');
     
     if (!timestamp) {
@@ -115,7 +123,7 @@ export async function onRequest(context) {
       }, 400);
     }
   } 
-  else if (path === 'v1/timezone') {
+  else if (path === 'v1/timezone' || path === '/v1/timezone') {
     const time = url.searchParams.get('time');
     const fromTz = url.searchParams.get('from');
     const toTz = url.searchParams.get('to');
@@ -156,9 +164,24 @@ export async function onRequest(context) {
     }
   }
   
+  // Root API path should return available endpoints
+  if (path === '' || path === 'v1' || path === '/v1') {
+    return jsonResponse({
+      name: "Not Today Time API",
+      version: "1.0",
+      endpoints: [
+        "/api/v1/current",
+        "/api/v1/convert",
+        "/api/v1/timezone"
+      ],
+      documentation: "/api-docs"
+    });
+  }
+  
   // Not found
   return jsonResponse({ 
     error: 'Invalid API endpoint',
-    status: 'error'
+    status: 'error',
+    path: path
   }, 404);
-} 
+}

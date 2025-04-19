@@ -1,3 +1,4 @@
+
 name = "mess-with-time-api"
 main = "dist/index.js"
 compatibility_date = "2023-05-18"
@@ -12,11 +13,13 @@ site = {
   }
 }
 
+# 更新路由配置
 zone_name = "messwithtime.com"
 route = "messwithtime.com/*"
 
-[routes]
-pattern = "*/api/*"
+routes = [
+  { pattern = "*/api/*", zone_name = "messwithtime.com" }
+]
 
 [env.production]
-route = "messwithtime.com/api/*" 
+route = "messwithtime.com/api/*"
