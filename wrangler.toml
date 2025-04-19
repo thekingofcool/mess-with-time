@@ -1,16 +1,22 @@
-name = "not-today-api"
-main = "worker/index.js"
-compatibility_date = "2023-07-10"
+name = "mess-with-time-api"
+main = "dist/index.js"
+compatibility_date = "2023-05-18"
 
-[site]
-bucket = "./dist"
+site = {
+  bucket = "dist"
+  build = {
+    command = "npm run build"
+    upload = {
+      format = "service-worker"
+    }
+  }
+}
 
-[build]
-command = "npm run build"
+zone_name = "messwithtime.com"
+route = "messwithtime.com/*"
 
 [routes]
 pattern = "*/api/*"
-zone_name = "messwithtime.com" # 已更新为实际域名
 
 [env.production]
-route = "messwithtime.com/api/*" # 已更新为实际域名 
+route = "messwithtime.com/api/*" 
