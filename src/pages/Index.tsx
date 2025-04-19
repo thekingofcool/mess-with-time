@@ -1,4 +1,3 @@
-
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Earth } from "lucide-react";
 import TimeConverter from "@/components/TimeConverter";
@@ -114,8 +113,16 @@ const Index = () => {
           </Tabs>
         </div>
         
-        <footer className="mt-6 sm:mt-8 text-center text-xs sm:text-sm text-gray-400/80">
-          &copy; {new Date().getFullYear()} Not Today. All rights reserved.
+        <footer className="mt-6 sm:mt-8 text-center text-xs sm:text-sm text-gray-400/80 flex flex-col items-center space-y-2">
+          <span>&copy; {new Date().getFullYear()} Not Today. All rights reserved.</span>
+          <a 
+            href="https://buy.stripe.com/6oE6qfaFo0HobAIfYZ" 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            className="inline-flex items-center justify-center px-4 py-2 bg-purple-600/30 text-purple-50 hover:bg-purple-600/40 border border-purple-400/30 shadow-lg shadow-purple-500/20 rounded-md text-sm transition-all duration-200 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+          >
+            Enjoy messing with time? <span className="ml-1 font-semibold underline">Support</span> to make it better!
+          </a>
         </footer>
       </div>
     </div>
