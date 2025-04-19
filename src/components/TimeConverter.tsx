@@ -204,22 +204,29 @@ const TimeConverter = () => {
         return;
       }
 
-      // Parse the input date time as a local JS Date object
+      // Parse the input date time string
       const [datePart, timePart] = fullDateTime.split(" ");
       
-      // Create a Date object
+      // Create a Date object representing this time in the source timezone
       const dateObj = new Date(`${datePart}T${timePart}`);
       
-      // First, interpret this date object as being in the source timezone
-      // This is the critical step - we need to tell the system which timezone the input date is in
-      const sourceZoneDate = toZonedTime(dateObj, sourceZone);
+      // Get the time difference between source and target timezones
+      // We'll use the library functions to help us calculate this difference correctly
+      const now = new Date();
       
-      // Now convert and format that date to the target timezone
-      const result = formatInTimeZone(
-        sourceZoneDate,
-        targetZone,
-        "yyyy-MM-dd HH:mm:ss"
-      );
+      // Get current time in both timezones to determine the offset difference
+      const nowInSourceTZ = toZonedTime(now, sourceZone);
+      const nowInTargetTZ = toZonedTime(now, targetZone);
+      
+      // Calculate the timezone difference in milliseconds
+      const tzDifference = nowInTargetTZ.getTime() - nowInSourceTZ.getTime();
+      
+      // Apply the formula: (Target TZ - Source TZ) + input date time
+      // Add this difference to the input date
+      const resultDate = new Date(dateObj.getTime() + tzDifference);
+      
+      // Format the result in a readable string format
+      const result = format(resultDate, "yyyy-MM-dd HH:mm:ss");
       
       setConvertedResult(result);
       generatePythonCode(fullDateTime);
@@ -229,8 +236,10 @@ const TimeConverter = () => {
         sourceZone,
         targetZone,
         result,
-        sourceDate: sourceZoneDate.toString(),
-        method: "Correct timezone conversion"
+        sourceDate: dateObj.toString(),
+        targetDate: resultDate.toString(),
+        tzDifference: `${tzDifference / (60 * 60 * 1000)} hours`,
+        method: "Using timezone difference formula"
       });
       
     } catch (error) {
@@ -267,7 +276,8 @@ import pytz
 def convert_time(date_time_str="${dateTimeStr}",
                 source_zone="${sourceZone}", target_zone="${targetZone}"):
     """
-    Convert datetime between timezones
+    Convert datetime between timezones using the formula:
+    (Target TZ - Source TZ) + input date time
     
     Parameters:
         date_time_str: Date time string in format YYYY-MM-DD HH:MM:SS
@@ -277,20 +287,29 @@ def convert_time(date_time_str="${dateTimeStr}",
     Returns:
         Converted datetime string
     """
-    # Parse the input datetime string as a naive datetime object
+    # Parse the input datetime string
     dt = datetime.strptime(date_time_str, "%Y-%m-%d %H:%M:%S")
     
-    # Set the timezone of the datetime object to the source timezone
-    # This tells Python that the input time is in the source timezone
-    source_tz = pytz.timezone(source_zone)
-    localized_dt = source_tz.localize(dt)
+    # Calculate timezone difference using a reference time
+    reference_time = datetime.now()
     
-    # Convert to the target timezone
+    # Get the reference time in both timezones
+    source_tz = pytz.timezone(source_zone)
     target_tz = pytz.timezone(target_zone)
-    target_dt = localized_dt.astimezone(target_tz)
+    
+    ref_in_source = source_tz.localize(reference_time.replace(tzinfo=None))
+    ref_in_target = target_tz.localize(reference_time.replace(tzinfo=None))
+    
+    # Calculate difference in seconds between the two timezones
+    tz_diff_seconds = (ref_in_target.utcoffset().total_seconds() - 
+                        ref_in_source.utcoffset().total_seconds())
+    
+    # Apply the formula: (Target TZ - Source TZ) + input date time
+    # Add this difference to the input date
+    result_dt = dt + datetime.timedelta(seconds=tz_diff_seconds)
     
     # Format the result to a string
-    return target_dt.strftime("%Y-%m-%d %H:%M:%S")
+    return result_dt.strftime("%Y-%m-%d %H:%M:%S")
 
 # Example usage
 result = convert_time()
