@@ -1,15 +1,20 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Globe, Key, Copy, ChevronRight, ExternalLink } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { Link } from "react-router-dom";
 
-const BASE_URL = window.location.origin;
-
 const ApiInfo = () => {
   const [apiKey, setApiKey] = useState<string>("");
+  const [baseUrl, setBaseUrl] = useState<string>(window.location.origin);
   const { toast } = useToast();
+
+  useEffect(() => {
+    // Determine the appropriate API URL based on environment
+    // For Cloudflare Pages, this would be your domain or API-specific subdomain
+    setBaseUrl(window.location.origin);
+  }, []);
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
@@ -51,7 +56,7 @@ const ApiInfo = () => {
                 <Button 
                   variant="ghost" 
                   size="sm" 
-                  onClick={() => openEndpoint(`${BASE_URL}/api/v1/current`)}
+                  onClick={() => openEndpoint(`${baseUrl}/api/v1/current`)}
                   className="text-gray-300 hover:text-white"
                 >
                   <ExternalLink className="h-4 w-4" />
@@ -59,7 +64,7 @@ const ApiInfo = () => {
                 <Button 
                   variant="ghost" 
                   size="sm" 
-                  onClick={() => copyToClipboard(`${BASE_URL}/api/v1/current`)}
+                  onClick={() => copyToClipboard(`${baseUrl}/api/v1/current`)}
                   className="text-gray-300 hover:text-white"
                 >
                   <Copy className="h-4 w-4" />
@@ -67,7 +72,7 @@ const ApiInfo = () => {
               </div>
             </div>
             <div className="bg-black/30 p-2 rounded text-sm font-mono text-gray-300">
-              GET {BASE_URL}/api/v1/current
+              GET {baseUrl}/api/v1/current
             </div>
           </div>
           
@@ -78,7 +83,7 @@ const ApiInfo = () => {
                 <Button 
                   variant="ghost" 
                   size="sm" 
-                  onClick={() => openEndpoint(`${BASE_URL}/api/v1/convert?timestamp=1618840800`)}
+                  onClick={() => openEndpoint(`${baseUrl}/api/v1/convert?timestamp=1618840800`)}
                   className="text-gray-300 hover:text-white"
                 >
                   <ExternalLink className="h-4 w-4" />
@@ -86,7 +91,7 @@ const ApiInfo = () => {
                 <Button 
                   variant="ghost" 
                   size="sm" 
-                  onClick={() => copyToClipboard(`${BASE_URL}/api/v1/convert?timestamp=1618840800`)}
+                  onClick={() => copyToClipboard(`${baseUrl}/api/v1/convert?timestamp=1618840800`)}
                   className="text-gray-300 hover:text-white"
                 >
                   <Copy className="h-4 w-4" />
@@ -94,7 +99,7 @@ const ApiInfo = () => {
               </div>
             </div>
             <div className="bg-black/30 p-2 rounded text-sm font-mono text-gray-300">
-              GET {BASE_URL}/api/v1/convert?timestamp=1618840800
+              GET {baseUrl}/api/v1/convert?timestamp=1618840800
             </div>
           </div>
           
@@ -105,7 +110,7 @@ const ApiInfo = () => {
                 <Button 
                   variant="ghost" 
                   size="sm" 
-                  onClick={() => openEndpoint(`${BASE_URL}/api/v1/timezone?time=2023-04-19T15:30:00&from=UTC&to=America/New_York`)}
+                  onClick={() => openEndpoint(`${baseUrl}/api/v1/timezone?time=2023-04-19T15:30:00&from=UTC&to=America/New_York`)}
                   className="text-gray-300 hover:text-white"
                 >
                   <ExternalLink className="h-4 w-4" />
@@ -113,7 +118,7 @@ const ApiInfo = () => {
                 <Button 
                   variant="ghost" 
                   size="sm" 
-                  onClick={() => copyToClipboard(`${BASE_URL}/api/v1/timezone?time=2023-04-19T15:30:00&from=UTC&to=America/New_York`)}
+                  onClick={() => copyToClipboard(`${baseUrl}/api/v1/timezone?time=2023-04-19T15:30:00&from=UTC&to=America/New_York`)}
                   className="text-gray-300 hover:text-white"
                 >
                   <Copy className="h-4 w-4" />
@@ -121,7 +126,7 @@ const ApiInfo = () => {
               </div>
             </div>
             <div className="bg-black/30 p-2 rounded text-sm font-mono break-all text-gray-300">
-              GET {BASE_URL}/api/v1/timezone?time=2023-04-19T15:30:00&from=UTC&to=America/New_York
+              GET {baseUrl}/api/v1/timezone?time=2023-04-19T15:30:00&from=UTC&to=America/New_York
             </div>
           </div>
         </div>

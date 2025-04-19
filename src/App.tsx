@@ -5,7 +5,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
-import ApiRoutes from "./api/ApiRoutes";
 import ApiDocs from "./pages/ApiDocs";
 
 // Create a client
@@ -28,8 +27,8 @@ const App = () => {
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
-            <Route path="/api/*" element={<ApiRoutes />} />
             <Route path="/api-docs" element={<ApiDocs />} />
+            {/* API routes are handled by Cloudflare Workers */}
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
