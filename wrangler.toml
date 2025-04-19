@@ -10,7 +10,7 @@ command = "npm run build"
 
 [routes]
 pattern = "*/api/*"
-zone_name = "your-domain.com" # 替换为你的实际域名
+zone_name = "messwithtime.com" # 已更新为实际域名
 
 [env.production]
-route = "your-domain.com/api/*" # 替换为你的实际域名 
+route = "messwithtime.com/api/*" # 已更新为实际域名 
