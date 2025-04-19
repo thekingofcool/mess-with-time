@@ -199,11 +199,12 @@ const TimeConverter = () => {
         return;
       }
 
+      const sourceDate = new Date(fullDateTime.replace(/-/g, '/'));
+      
       const result = formatInTimeZone(
-        new Date(fullDateTime.replace(/-/g, '/')),
-        sourceZone,
+        sourceDate,
+        targetZone,
         "yyyy-MM-dd HH:mm:ss",
-        { timeZone: targetZone }
       );
       
       setConvertedResult(result);
@@ -232,7 +233,6 @@ const TimeConverter = () => {
     });
   };
 
-  // Add the missing copyPythonCode function
   const copyPythonCode = () => {
     if (pythonCode) {
       navigator.clipboard.writeText(pythonCode);
@@ -265,13 +265,13 @@ def convert_time(date_time_str="${dateTimeStr}",
     # Parse the datetime string
     dt = datetime.strptime(date_time_str, "%Y-%m-%d %H:%M:%S")
     
-    # Set source timezone - this tells Python that dt should be interpreted as being in source_zone
+    # Set source timezone
     source_tz = pytz.timezone(source_zone)
-    source_dt = source_tz.localize(dt)
+    dt_with_tz = source_tz.localize(dt)
     
-    # Convert to target timezone - a simple timezone conversion
+    # Convert to target timezone
     target_tz = pytz.timezone(target_zone)
-    target_dt = source_dt.astimezone(target_tz)
+    target_dt = dt_with_tz.astimezone(target_tz)
     
     return target_dt.strftime("%Y-%m-%d %H:%M:%S")
 
