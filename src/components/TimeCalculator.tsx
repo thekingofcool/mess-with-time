@@ -330,12 +330,22 @@ print(f"Result: {result}")
       </div>
 
       <Tabs defaultValue="difference">
-        <TabsList className="grid grid-cols-2 mb-4">
-          <TabsTrigger value="difference">Time Difference</TabsTrigger>
-          <TabsTrigger value="addition">Date Add/Subtract</TabsTrigger>
+        <TabsList className="grid grid-cols-2 mb-6 bg-black/30 p-1 rounded-lg border border-purple-500/10">
+          <TabsTrigger 
+            value="difference"
+            className="data-[state=active]:bg-purple-600/30 data-[state=active]:text-purple-50 data-[state=active]:shadow-lg data-[state=active]:shadow-purple-500/20 data-[state=active]:border-purple-400/30 py-2.5 text-sm transition-all duration-200"
+          >
+            Time Difference
+          </TabsTrigger>
+          <TabsTrigger 
+            value="addition"
+            className="data-[state=active]:bg-purple-600/30 data-[state=active]:text-purple-50 data-[state=active]:shadow-lg data-[state=active]:shadow-purple-500/20 data-[state=active]:border-purple-400/30 py-2.5 text-sm transition-all duration-200"
+          >
+            Date Add/Subtract
+          </TabsTrigger>
         </TabsList>
         
-        <TabsContent value="difference" className="space-y-4">
+        <TabsContent value="difference" className="space-y-4 bg-black/10 rounded-lg p-4 border border-purple-500/5">
           <div className="grid grid-cols-1 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-1">
@@ -483,7 +493,7 @@ print(f"Result: {result}")
           )}
         </TabsContent>
         
-        <TabsContent value="addition" className="space-y-4">
+        <TabsContent value="addition" className="space-y-4 bg-black/10 rounded-lg p-4 border border-purple-500/5">
           <div className="grid grid-cols-1 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-1">
