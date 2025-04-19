@@ -1,5 +1,5 @@
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Earth } from "lucide-react";
 import TimeConverter from "@/components/TimeConverter";
 import TimestampConverter from "@/components/TimestampConverter";
 import CurrentTime from "@/components/CurrentTime";
@@ -7,6 +7,7 @@ import RelativeTime from "@/components/RelativeTime";
 import TimeCalculator from "@/components/TimeCalculator";
 import TimeFormatter from "@/components/TimeFormatter";
 import ApiInfo from "@/components/ApiInfo";
+import TimeApi from "@/components/TimeApi";
 
 const Index = () => {
   return (
@@ -22,7 +23,7 @@ const Index = () => {
         <div className="bg-black/20 backdrop-blur-lg border border-purple-500/10 rounded-xl shadow-lg shadow-purple-500/10 p-3 sm:p-4 md:p-6">
           <Tabs defaultValue="converter" className="w-full">
             <div className="overflow-x-auto -mx-3 px-3 pb-2">
-              <TabsList className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-2 mb-4 sm:mb-6 min-w-[300px] bg-black/20 p-1.5">
+              <TabsList className="grid grid-cols-2 sm:grid-cols-5 gap-1.5 sm:gap-2 mb-4 sm:mb-6 min-w-[300px] bg-black/20 p-1.5">
                 <TabsTrigger 
                   value="converter"
                   className="data-[state=active]:bg-purple-600/30 data-[state=active]:text-purple-50 data-[state=active]:shadow-lg data-[state=active]:shadow-purple-500/20 data-[state=active]:border-purple-400/30 text-sm"
@@ -46,6 +47,12 @@ const Index = () => {
                   className="data-[state=active]:bg-purple-600/30 data-[state=active]:text-purple-50 data-[state=active]:shadow-lg data-[state=active]:shadow-purple-500/20 data-[state=active]:border-purple-400/30 text-sm"
                 >
                   API
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="timeapi"
+                  className="data-[state=active]:bg-purple-600/30 data-[state=active]:text-purple-50 data-[state=active]:shadow-lg data-[state=active]:shadow-purple-500/20 data-[state=active]:border-purple-400/30 text-sm"
+                >
+                  Time API
                 </TabsTrigger>
               </TabsList>
             </div>
@@ -109,6 +116,10 @@ const Index = () => {
             
             <TabsContent value="api">
               <ApiInfo />
+            </TabsContent>
+            
+            <TabsContent value="timeapi">
+              <TimeApi />
             </TabsContent>
           </Tabs>
         </div>
