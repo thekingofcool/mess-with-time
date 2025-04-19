@@ -14,15 +14,16 @@ const TimeApi = () => {
   const [isLoadingCurrent, setIsLoadingCurrent] = useState<boolean>(false);
   const [isLoadingConvert, setIsLoadingConvert] = useState<boolean>(false);
 
-  // Fetch current time from API
+  // Mock API function for current time
   const fetchCurrentTime = async () => {
     setIsLoadingCurrent(true);
     try {
-      const response = await fetch("/api/time/current");
-      if (!response.ok) {
-        throw new Error("Failed to fetch current time");
-      }
-      const data = await response.json();
+      const now = new Date();
+      const data = {
+        timestamp: Math.floor(now.getTime() / 1000),
+        iso: now.toISOString(),
+        utc: now.toUTCString()
+      };
       setCurrentTimeData(data);
       toast({
         title: "Success",
@@ -40,7 +41,7 @@ const TimeApi = () => {
     }
   };
 
-  // Convert timestamp using API
+  // Mock API function for converting timestamp
   const handleConvertTimestamp = async () => {
     if (!convertTimestamp) {
       toast({
@@ -53,11 +54,20 @@ const TimeApi = () => {
 
     setIsLoadingConvert(true);
     try {
-      const response = await fetch(`/api/time/convert?timestamp=${convertTimestamp}`);
-      if (!response.ok) {
-        throw new Error("Failed to convert timestamp");
+      const timestamp = parseInt(convertTimestamp);
+      const date = new Date(timestamp * 1000);
+      
+      if (isNaN(date.getTime())) {
+        throw new Error("Invalid timestamp");
       }
-      const data = await response.json();
+      
+      const data = {
+        timestamp: timestamp,
+        iso: date.toISOString(),
+        utc: date.toUTCString(),
+        formatted: date.toLocaleString()
+      };
+      
       setConvertedData(data);
       toast({
         title: "Success",
@@ -96,7 +106,7 @@ const TimeApi = () => {
           <TabsTrigger value="convert">Convert Timestamp</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="current" className="space-y-4">
+        <TabsContent value="current">
           <Card className="bg-black/20 border-purple-500/20">
             <CardHeader>
               <CardTitle className="text-lg text-white">Current Time API</CardTitle>
@@ -170,18 +180,14 @@ const TimeApi = () => {
                   </div>
                 </div>
               )}
-              
-              <div className="mt-4 text-xs text-gray-400">
-                <p>API Endpoint: <code>/api/time/current</code></p>
-              </div>
             </CardContent>
           </Card>
         </TabsContent>
 
-        <TabsContent value="convert" className="space-y-4">
+        <TabsContent value="convert">
           <Card className="bg-black/20 border-purple-500/20">
             <CardHeader>
-              <CardTitle className="text-lg text-white">Convert Timestamp API</CardTitle>
+              <CardTitle className="text-lg text-white">Convert Timestamp</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
@@ -264,10 +270,6 @@ const TimeApi = () => {
                   </div>
                 </div>
               )}
-              
-              <div className="mt-4 text-xs text-gray-400">
-                <p>API Endpoint: <code>/api/time/convert?timestamp=1234567890</code></p>
-              </div>
             </CardContent>
           </Card>
         </TabsContent>
