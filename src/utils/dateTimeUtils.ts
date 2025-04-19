@@ -93,8 +93,8 @@ export const highlightPythonCode = (code: string) => {
       // Process code part first
       let processedCode = processCodeSection(codeSection, keywords, builtins);
       
-      // Then wrap comment in span without extra attributes
-      return processedCode + `<span style="color:gray">${commentSection}</span>`;
+      // Then wrap comment in span with gray color
+      return processedCode + `<span style="color: gray">${commentSection}</span>`;
     }
     
     // No comments, process normal code

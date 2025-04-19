@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { formatInTimeZone } from "date-fns-tz";
+import { formatInTimeZone, toZonedTime } from "date-fns-tz";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -165,11 +165,20 @@ const TimeConverter = () => {
   };
 
   const handleCurrentTime = () => {
-    const now = new Date();
-    const zonedTime = formatInTimeZone(now, sourceZone, "yyyy-MM-dd HH:mm:ss");
-    const [date, time] = zonedTime.split(' ');
-    setDateInput(date);
-    setTimeInput(time);
+    try {
+      const now = new Date();
+      const zonedTime = formatInTimeZone(now, sourceZone, "yyyy-MM-dd HH:mm:ss");
+      const [date, time] = zonedTime.split(' ');
+      setDateInput(date);
+      setTimeInput(time);
+    } catch (error) {
+      console.error("Error setting current time:", error);
+      toast({
+        title: "Error",
+        description: "Failed to get current time",
+        duration: 3000,
+      });
+    }
   };
 
   const getFullDateTime = () => {
@@ -189,76 +198,21 @@ const TimeConverter = () => {
         setPythonCode("");
         return;
       }
-      
-      const dateTimeParts = fullDateTime.split(' ');
-      const dateParts = dateTimeParts[0].split('-');
-      const timeParts = dateTimeParts[1].split(':');
-      
-      const year = parseInt(dateParts[0]);
-      const month = parseInt(dateParts[1]) - 1;
-      const day = parseInt(dateParts[2]);
-      const hour = parseInt(timeParts[0]);
-      const minute = parseInt(timeParts[1]) || 0;
-      const second = parseInt(timeParts[2]) || 0;
-      
-      const date = new Date(year, month, day, hour, minute, second);
-      
-      if (isNaN(date.getTime())) {
-        setConvertedResult("Invalid date or time format");
-        setPythonCode("");
-        return;
-      }
-      
-      const sourceFormatter = new Intl.DateTimeFormat('en-US', {
-        timeZone: sourceZone,
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        hour12: false
-      });
-      
-      const sourceParts = sourceFormatter.formatToParts(date);
-      const sourceDateObj: Record<string, string> = {};
-      sourceParts.forEach(part => {
-        if (part.type !== 'literal') {
-          sourceDateObj[part.type] = part.value;
-        }
-      });
-      
-      const sourceISOString = 
-        `${sourceDateObj.year}-${sourceDateObj.month}-${sourceDateObj.day}T` + 
-        `${sourceDateObj.hour}:${sourceDateObj.minute}:${sourceDateObj.second}`;
-      
-      const sourceDate = new Date(sourceISOString);
-      
-      const targetFormatter = new Intl.DateTimeFormat('en-US', {
-        timeZone: targetZone,
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        hour12: false
-      });
-      
-      const formattedResult = targetFormatter.formatToParts(sourceDate);
-      const resultObj: Record<string, string> = {};
-      formattedResult.forEach(part => {
-        if (part.type !== 'literal') {
-          resultObj[part.type] = part.value;
-        }
-      });
 
-      const result = `${resultObj.year}-${resultObj.month}-${resultObj.day} ${resultObj.hour}:${resultObj.minute}:${resultObj.second}`;
+      const [dateStr, timeStr] = fullDateTime.split(' ');
+      const [year, month, day] = dateStr.split('-').map(Number);
+      const [hour, minute, second] = timeStr.split(':').map(Number);
+      
+      const localDate = new Date(year, month - 1, day, hour, minute, second);
+      
+      const sourceDate = toZonedTime(localDate, sourceZone);
+      
+      const result = formatInTimeZone(sourceDate, targetZone, "yyyy-MM-dd HH:mm:ss");
       
       setConvertedResult(result);
       generatePythonCode(fullDateTime);
     } catch (error) {
-      console.error("转换错误:", error);
+      console.error("Conversion error:", error);
       setConvertedResult("Invalid time format");
       setPythonCode("");
     }
