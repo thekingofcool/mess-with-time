@@ -203,14 +203,22 @@ const TimeConverter = () => {
       const [year, month, day] = dateStr.split('-').map(Number);
       const [hour, minute, second] = timeStr.split(':').map(Number);
       
-      const utcDate = new Date(Date.UTC(year, month - 1, day, hour, minute, second));
+      const dateObj = new Date(Date.UTC(year, month - 1, day, hour, minute, second));
       
-      const sourceDate = toZonedTime(utcDate, sourceZone);
+      const sourceDate = toZonedTime(dateObj, sourceZone);
       
       const result = formatInTimeZone(sourceDate, targetZone, "yyyy-MM-dd HH:mm:ss");
       
       setConvertedResult(result);
       generatePythonCode(fullDateTime);
+      
+      console.log({
+        input: fullDateTime,
+        sourceZone,
+        targetZone,
+        sourceDate: sourceDate.toString(),
+        result
+      });
     } catch (error) {
       console.error("Conversion error:", error);
       setConvertedResult("Invalid time format");
