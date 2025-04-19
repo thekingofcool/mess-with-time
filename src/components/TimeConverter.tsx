@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { formatInTimeZone } from "date-fns-tz";
+import { formatInTimeZone, toZonedTime } from "date-fns-tz";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -166,9 +166,13 @@ const TimeConverter = () => {
 
   const handleCurrentTime = () => {
     try {
-      const now = new Date();
-      const formattedDate = format(now, "yyyy-MM-dd");
-      const formattedTime = format(now, "HH:mm:ss");
+      const nowUTC = new Date();
+      
+      const nowInSourceZone = toZonedTime(nowUTC, sourceZone);
+      
+      const formattedDate = format(nowInSourceZone, "yyyy-MM-dd");
+      const formattedTime = format(nowInSourceZone, "HH:mm:ss");
+      
       setDateInput(formattedDate);
       setTimeInput(formattedTime);
     } catch (error) {
@@ -199,18 +203,14 @@ const TimeConverter = () => {
         return;
       }
 
-      // Parse the input date time string as if it's in the source timezone
-      // We create a date object that represents this exact time in the source timezone
       const [datePart, timePart] = fullDateTime.split(" ");
       
-      // This approach directly uses formatInTimeZone to do the conversion
-      // from source to target timezone in one step
+      const dateObj = new Date(`${datePart}T${timePart}`);
+      const sourceDate = toZonedTime(dateObj, sourceZone);
+      
       const result = formatInTimeZone(
-        // Create a Date object that represents the input time in the source timezone
-        new Date(`${datePart}T${timePart}.000${sourceZone === 'UTC' ? 'Z' : ''}`),
-        // Convert it directly to the target timezone
+        sourceDate,
         targetZone,
-        // Format the result
         "yyyy-MM-dd HH:mm:ss"
       );
       
@@ -222,7 +222,8 @@ const TimeConverter = () => {
         sourceZone,
         targetZone,
         result,
-        method: "Single-step timezone conversion"
+        sourceDate: sourceDate.toString(),
+        method: "Proper timezone conversion"
       });
       
     } catch (error) {
@@ -269,18 +270,14 @@ def convert_time(date_time_str="${dateTimeStr}",
     Returns:
         Converted datetime string
     """
-    # Create a datetime object from the input string
     dt = datetime.strptime(date_time_str, "%Y-%m-%d %H:%M:%S")
     
-    # Localize the datetime to the source timezone
     source_tz = pytz.timezone(source_zone)
     localized_dt = source_tz.localize(dt)
     
-    # Convert to target timezone
     target_tz = pytz.timezone(target_zone)
     target_dt = localized_dt.astimezone(target_tz)
     
-    # Format and return the result
     return target_dt.strftime("%Y-%m-%d %H:%M:%S")
 
 # Example usage
