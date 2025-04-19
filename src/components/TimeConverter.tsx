@@ -199,12 +199,13 @@ const TimeConverter = () => {
         return;
       }
 
-      const sourceDate = new Date(fullDateTime.replace(/-/g, '/'));
+      const dateTimeStr = fullDateTime.replace(/-/g, '/');
       
       const result = formatInTimeZone(
-        sourceDate,
+        new Date(dateTimeStr),
         targetZone,
         "yyyy-MM-dd HH:mm:ss",
+        { timeZone: sourceZone }
       );
       
       setConvertedResult(result);
@@ -267,11 +268,11 @@ def convert_time(date_time_str="${dateTimeStr}",
     
     # Set source timezone
     source_tz = pytz.timezone(source_zone)
-    dt_with_tz = source_tz.localize(dt)
+    dt_source = source_tz.localize(dt)
     
     # Convert to target timezone
     target_tz = pytz.timezone(target_zone)
-    target_dt = dt_with_tz.astimezone(target_tz)
+    target_dt = dt_source.astimezone(target_tz)
     
     return target_dt.strftime("%Y-%m-%d %H:%M:%S")
 
