@@ -166,7 +166,6 @@ const TimeConverter = () => {
 
   const handleCurrentTime = () => {
     try {
-      // 直接使用 sourceZone 创建当前时间
       const now = new Date();
       const zonedTime = formatInTimeZone(now, sourceZone, "yyyy-MM-dd HH:mm:ss");
       const [date, time] = zonedTime.split(' ');
@@ -200,17 +199,8 @@ const TimeConverter = () => {
         return;
       }
 
-      // 解析输入的日期和时间
-      const [dateStr, timeStr] = fullDateTime.split(' ');
-      const [year, month, day] = dateStr.split('-').map(Number);
-      const [hour, minute, second] = timeStr.split(':').map(Number);
-      
-      // 创建一个基准时间点
-      const baseDate = new Date(Date.UTC(year, month - 1, day, hour, minute, second));
-      
-      // 根据源时区和目标时区之间的差异调整时间
       const result = formatInTimeZone(
-        baseDate, 
+        new Date(fullDateTime.replace(/-/g, '/')),
         sourceZone,
         "yyyy-MM-dd HH:mm:ss",
         { timeZone: targetZone }
@@ -263,11 +253,11 @@ def convert_time(date_time_str="${dateTimeStr}",
     # Parse the datetime string
     dt = datetime.strptime(date_time_str, "%Y-%m-%d %H:%M:%S")
     
-    # Set source timezone
+    # Set source timezone - this tells Python that dt should be interpreted as being in source_zone
     source_tz = pytz.timezone(source_zone)
     source_dt = source_tz.localize(dt)
     
-    # Convert to target timezone
+    # Convert to target timezone - a simple timezone conversion
     target_tz = pytz.timezone(target_zone)
     target_dt = source_dt.astimezone(target_tz)
     
@@ -279,17 +269,6 @@ print(f"Converted time: {result}")
     `.trim();
 
     setPythonCode(pythonCode);
-  };
-
-  const copyPythonCode = () => {
-    if (pythonCode) {
-      navigator.clipboard.writeText(pythonCode);
-      toast({
-        title: "Python code copied to clipboard",
-        description: "The code has been copied and can be used in your Python environment.",
-        duration: 3000,
-      });
-    }
   };
 
   return (
