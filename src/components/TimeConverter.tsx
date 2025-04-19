@@ -203,9 +203,9 @@ const TimeConverter = () => {
       const [year, month, day] = dateStr.split('-').map(Number);
       const [hour, minute, second] = timeStr.split(':').map(Number);
       
-      const localDate = new Date(year, month - 1, day, hour, minute, second);
+      const utcDate = new Date(Date.UTC(year, month - 1, day, hour, minute, second));
       
-      const sourceDate = toZonedTime(localDate, sourceZone);
+      const sourceDate = toZonedTime(utcDate, sourceZone);
       
       const result = formatInTimeZone(sourceDate, targetZone, "yyyy-MM-dd HH:mm:ss");
       
@@ -249,7 +249,7 @@ def convert_time(date_time_str="${dateTimeStr}",
     
     # Localize the datetime to source timezone
     source_tz = pytz.timezone(source_zone)
-    localized_dt = source_tz.localize(dt)
+    localized_dt = source_tz.localize(dt, is_dst=None)
     
     # Convert to target timezone
     target_tz = pytz.timezone(target_zone)
