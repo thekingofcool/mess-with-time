@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { formatInTimeZone } from "date-fns-tz";
 import { Button } from "@/components/ui/button";
@@ -11,7 +12,7 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
 import { CalendarIcon, Copy, Code, Earth, Clock } from "lucide-react";
-import { format, parse } from "date-fns";
+import { format, parse, parseISO } from "date-fns";
 import { formatDateInput, formatTimeInput, highlightPythonCode } from "@/utils/dateTimeUtils";
 
 const TimeConverter = () => {
@@ -167,10 +168,11 @@ const TimeConverter = () => {
   const handleCurrentTime = () => {
     try {
       const now = new Date();
-      const zonedTime = formatInTimeZone(now, sourceZone, "yyyy-MM-dd HH:mm:ss");
-      const [date, time] = zonedTime.split(' ');
-      setDateInput(date);
-      setTimeInput(time);
+      // Use the source timezone directly when getting current time
+      const formattedDate = format(now, "yyyy-MM-dd");
+      const formattedTime = format(now, "HH:mm:ss");
+      setDateInput(formattedDate);
+      setTimeInput(formattedTime);
     } catch (error) {
       console.error("Error setting current time:", error);
       toast({
@@ -199,23 +201,33 @@ const TimeConverter = () => {
         return;
       }
 
-      const dateObj = new Date(fullDateTime.replace(/-/g, '/'));
+      // Create a date object from the input date string
+      const dateObj = new Date(`${fullDateTime}Z`);
       
-      const result = formatInTimeZone(
-        dateObj,
+      // First, format in the source timezone to get the correct time
+      const sourceTime = formatInTimeZone(
+        dateObj, 
+        sourceZone,
+        "yyyy-MM-dd'T'HH:mm:ss"
+      );
+      
+      // Then convert from source to target timezone
+      const targetTime = formatInTimeZone(
+        parseISO(sourceTime), 
         targetZone,
         "yyyy-MM-dd HH:mm:ss"
       );
       
-      setConvertedResult(result);
+      setConvertedResult(targetTime);
       generatePythonCode(fullDateTime);
       
       console.log({
         input: fullDateTime,
+        sourceTime,
         sourceZone,
         targetZone,
-        result,
-        method: "Direct timezone conversion"
+        result: targetTime,
+        method: "Corrected timezone conversion"
       });
       
     } catch (error) {
@@ -262,16 +274,16 @@ def convert_time(date_time_str="${dateTimeStr}",
     Returns:
         Converted datetime string
     """
-    # Parse the datetime string as a naive datetime
+    # Parse the datetime string as UTC
     dt = datetime.strptime(date_time_str, "%Y-%m-%d %H:%M:%S")
     
-    # Localize the datetime to the source timezone
+    # Assign the source timezone to the datetime
     source_tz = pytz.timezone(source_zone)
-    localized_dt = source_tz.localize(dt)
+    source_dt = source_tz.localize(dt)
     
     # Convert to target timezone
     target_tz = pytz.timezone(target_zone)
-    target_dt = localized_dt.astimezone(target_tz)
+    target_dt = source_dt.astimezone(target_tz)
     
     return target_dt.strftime("%Y-%m-%d %H:%M:%S")
 
