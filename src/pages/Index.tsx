@@ -23,28 +23,28 @@ const Index = () => {
         <div className="bg-black/20 backdrop-blur-lg border border-purple-500/10 rounded-xl shadow-lg shadow-purple-500/10 p-3 sm:p-4 md:p-6">
           <Tabs defaultValue="converter" className="w-full">
             <div className="overflow-x-auto -mx-3 px-3 pb-2">
-              <TabsList className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-2 mb-4 sm:mb-6 min-w-[300px] bg-black/20 p-1">
+              <TabsList className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-2 mb-4 sm:mb-6 min-w-[300px] bg-black/20 p-1.5">
                 <TabsTrigger 
                   value="converter"
-                  className="data-[state=active]:bg-purple-500/20 data-[state=active]:text-purple-300 text-sm"
+                  className="data-[state=active]:bg-purple-600/30 data-[state=active]:text-purple-50 data-[state=active]:shadow-lg data-[state=active]:shadow-purple-500/20 data-[state=active]:border-purple-400/30 text-sm"
                 >
                   Time Zone
                 </TabsTrigger>
                 <TabsTrigger 
                   value="timestamp"
-                  className="data-[state=active]:bg-purple-500/20 data-[state=active]:text-purple-300 text-sm"
+                  className="data-[state=active]:bg-purple-600/30 data-[state=active]:text-purple-50 data-[state=active]:shadow-lg data-[state=active]:shadow-purple-500/20 data-[state=active]:border-purple-400/30 text-sm"
                 >
                   Timestamp
                 </TabsTrigger>
                 <TabsTrigger 
                   value="calculator"
-                  className="data-[state=active]:bg-purple-500/20 data-[state=active]:text-purple-300 text-sm"
+                  className="data-[state=active]:bg-purple-600/30 data-[state=active]:text-purple-50 data-[state=active]:shadow-lg data-[state=active]:shadow-purple-500/20 data-[state=active]:border-purple-400/30 text-sm"
                 >
                   Time Tools
                 </TabsTrigger>
                 <TabsTrigger 
                   value="api"
-                  className="data-[state=active]:bg-purple-500/20 data-[state=active]:text-purple-300 text-sm"
+                  className="data-[state=active]:bg-purple-600/30 data-[state=active]:text-purple-50 data-[state=active]:shadow-lg data-[state=active]:shadow-purple-500/20 data-[state=active]:border-purple-400/30 text-sm"
                 >
                   API
                 </TabsTrigger>
@@ -65,25 +65,25 @@ const Index = () => {
                   <TabsList className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-2 mb-4 min-w-[300px] bg-black/20 p-1">
                     <TabsTrigger 
                       value="calc"
-                      className="data-[state=active]:bg-purple-500/20 data-[state=active]:text-purple-300 text-sm"
+                      className="data-[state=active]:bg-purple-500/20 data-[state=active]:text-purple-100 text-xs sm:text-sm"
                     >
                       Calculator
                     </TabsTrigger>
                     <TabsTrigger 
                       value="format"
-                      className="data-[state=active]:bg-purple-500/20 data-[state=active]:text-purple-300 text-sm"
+                      className="data-[state=active]:bg-purple-500/20 data-[state=active]:text-purple-100 text-xs sm:text-sm"
                     >
                       Format
                     </TabsTrigger>
                     <TabsTrigger 
                       value="current"
-                      className="data-[state=active]:bg-purple-500/20 data-[state=active]:text-purple-300 text-sm"
+                      className="data-[state=active]:bg-purple-500/20 data-[state=active]:text-purple-100 text-xs sm:text-sm"
                     >
                       Current
                     </TabsTrigger>
                     <TabsTrigger 
                       value="relative"
-                      className="data-[state=active]:bg-purple-500/20 data-[state=active]:text-purple-300 text-sm"
+                      className="data-[state=active]:bg-purple-500/20 data-[state=active]:text-purple-100 text-xs sm:text-sm"
                     >
                       Relative
                     </TabsTrigger>
