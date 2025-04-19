@@ -203,7 +203,7 @@ const TimeConverter = () => {
       const [year, month, day] = dateStr.split('-').map(Number);
       const [hour, minute, second] = timeStr.split(':').map(Number);
       
-      const dateObj = new Date(Date.UTC(year, month - 1, day, hour, minute, second));
+      const dateObj = new Date(`${dateStr}T${timeStr}Z`.replace('Z', ''));
       
       const sourceDate = toZonedTime(dateObj, sourceZone);
       
