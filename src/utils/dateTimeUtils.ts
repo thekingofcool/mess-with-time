@@ -80,25 +80,48 @@ export const highlightPythonCode = (code: string) => {
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;");
 
-  // Highlight comments first
-  highlightedCode = highlightedCode.replace(/(#.*?)(?=\n|$)/g, (match) => 
-    `<span style="color: #9CA3AF">${match}</span>`
-  );
+  // Create a array of lines to process each line
+  const lines = highlightedCode.split('\n');
+  const processedLines = lines.map(line => {
+    // Process comments (must be done first to avoid conflicts)
+    if (line.includes('#')) {
+      const commentIndex = line.indexOf('#');
+      const codeSection = line.substring(0, commentIndex);
+      const commentSection = line.substring(commentIndex);
+      
+      // Process code part first
+      let processedCode = processCodeSection(codeSection, keywords, builtins);
+      
+      // Then wrap comment in span
+      return processedCode + `<span style="color: #9CA3AF">${commentSection}</span>`;
+    }
+    
+    // No comments, process normal code
+    return processCodeSection(line, keywords, builtins);
+  });
+  
+  // Join lines back together
+  return processedLines.join('\n');
+};
+
+// Helper function to process code sections (non-comment parts)
+function processCodeSection(code: string, keywords: string[], builtins: string[]) {
+  let processedCode = code;
   
   // Highlight strings with proper escaping
-  highlightedCode = highlightedCode.replace(/(["'])((?:\\\1|(?!\1).)*?)\1/g, (match) => 
+  processedCode = processedCode.replace(/(["'])((?:\\\1|(?!\1).)*?)\1/g, (match) => 
     `<span style="color: #F59E0B">${match}</span>`
   );
   
   // Highlight numbers
-  highlightedCode = highlightedCode.replace(/\b(\d+)\b/g, (match) => 
+  processedCode = processedCode.replace(/\b(\d+)\b/g, (match) => 
     `<span style="color: #60A5FA">${match}</span>`
   );
   
   // Highlight keywords
   keywords.forEach(keyword => {
     const regex = new RegExp(`\\b(${keyword})\\b`, 'g');
-    highlightedCode = highlightedCode.replace(regex, (match) => 
+    processedCode = processedCode.replace(regex, (match) => 
       `<span style="color: #A78BFA">${match}</span>`
     );
   });
@@ -106,15 +129,15 @@ export const highlightPythonCode = (code: string) => {
   // Highlight built-in functions
   builtins.forEach(builtin => {
     const regex = new RegExp(`\\b(${builtin})\\b`, 'g');
-    highlightedCode = highlightedCode.replace(regex, (match) => 
+    processedCode = processedCode.replace(regex, (match) => 
       `<span style="color: #22D3EE">${match}</span>`
     );
   });
   
   // Highlight function definitions
-  highlightedCode = highlightedCode.replace(/(def\s+)(\w+)(?=\()/g, (match, def, funcName) => 
+  processedCode = processedCode.replace(/(def\s+)(\w+)(?=\()/g, (match, def, funcName) => 
     `${def}<span style="color: #34D399">${funcName}</span>`
   );
   
-  return highlightedCode;
-};
+  return processedCode;
+}
