@@ -203,7 +203,7 @@ const TimeConverter = () => {
       const [year, month, day] = dateStr.split('-').map(Number);
       const [hour, minute, second] = timeStr.split(':').map(Number);
       
-      const dateObj = new Date(`${dateStr}T${timeStr}Z`.replace('Z', ''));
+      const dateObj = new Date(year, month - 1, day, hour, minute, second);
       
       const sourceDate = toZonedTime(dateObj, sourceZone);
       
@@ -217,7 +217,8 @@ const TimeConverter = () => {
         sourceZone,
         targetZone,
         sourceDate: sourceDate.toString(),
-        result
+        result,
+        method: "Corrected conversion using toZonedTime"
       });
     } catch (error) {
       console.error("Conversion error:", error);
@@ -252,12 +253,12 @@ def convert_time(date_time_str="${dateTimeStr}",
     Returns:
         Converted datetime string in format YYYY-MM-DD HH:MM:SS
     """
-    # Parse datetime string
+    # Parse datetime string without timezone info (naive datetime)
     dt = datetime.strptime(date_time_str, "%Y-%m-%d %H:%M:%S")
     
-    # Localize the datetime to source timezone
+    # Localize the naive datetime to source timezone
     source_tz = pytz.timezone(source_zone)
-    localized_dt = source_tz.localize(dt, is_dst=None)
+    localized_dt = source_tz.localize(dt)
     
     # Convert to target timezone
     target_tz = pytz.timezone(target_zone)
