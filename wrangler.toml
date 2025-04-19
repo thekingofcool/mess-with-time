@@ -14,12 +14,10 @@ site = {
 }
 
 # 更新路由配置
-zone_name = "messwithtime.com"
-route = "messwithtime.com/*"
-
 routes = [
-  { pattern = "*/api/*", zone_name = "messwithtime.com" }
+  { pattern = "messwithtime.com/api/*", script = "worker/index.js" },
+  { pattern = "messwithtime.com/*", zone_name = "messwithtime.com" }
 ]
 
 [env.production]
-route = "messwithtime.com/api/*"
+route = "messwithtime.com/*"

@@ -61,7 +61,7 @@ function jsonResponse(data, status = 200) {
 }
 
 // Main request handler for Cloudflare Pages Functions
-export async function onRequest(context) {
+export async function onRequestGet(context) {
   const request = context.request;
   const url = new URL(request.url);
   const path = url.pathname.replace('/api/', '').replace('/api', '');
@@ -72,14 +72,6 @@ export async function onRequest(context) {
     path: path,
     fullPath: url.pathname
   });
-  
-  // Handle CORS preflight
-  if (request.method === 'OPTIONS') {
-    return new Response(null, {
-      status: 204,
-      headers: corsHeaders
-    });
-  }
   
   // API endpoints
   if (path === 'v1/current' || path === '/v1/current') {
@@ -184,4 +176,34 @@ export async function onRequest(context) {
     status: 'error',
     path: path
   }, 404);
+}
+
+// Handle OPTIONS requests for CORS
+export async function onRequestOptions() {
+  return new Response(null, {
+    status: 204,
+    headers: corsHeaders
+  });
+}
+
+// Main request handler that routes all methods
+export async function onRequest(context) {
+  // Force content type for API responses
+  const request = context.request;
+  
+  // Handle preflight requests
+  if (request.method === 'OPTIONS') {
+    return onRequestOptions();
+  }
+  
+  // Handle GET requests (our API only uses GET)
+  if (request.method === 'GET') {
+    return onRequestGet(context);
+  }
+  
+  // Method not allowed for other HTTP methods
+  return jsonResponse({
+    error: 'Method not allowed',
+    status: 'error'
+  }, 405);
 }
