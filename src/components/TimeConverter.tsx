@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { formatInTimeZone, toZonedTime } from "date-fns-tz";
 import { Button } from "@/components/ui/button";
@@ -203,13 +204,19 @@ const TimeConverter = () => {
         return;
       }
 
+      // Parse the input date time as a local JS Date object
       const [datePart, timePart] = fullDateTime.split(" ");
       
+      // Create a Date object
       const dateObj = new Date(`${datePart}T${timePart}`);
-      const sourceDate = toZonedTime(dateObj, sourceZone);
       
+      // First, interpret this date object as being in the source timezone
+      // This is the critical step - we need to tell the system which timezone the input date is in
+      const sourceZoneDate = toZonedTime(dateObj, sourceZone);
+      
+      // Now convert and format that date to the target timezone
       const result = formatInTimeZone(
-        sourceDate,
+        sourceZoneDate,
         targetZone,
         "yyyy-MM-dd HH:mm:ss"
       );
@@ -222,8 +229,8 @@ const TimeConverter = () => {
         sourceZone,
         targetZone,
         result,
-        sourceDate: sourceDate.toString(),
-        method: "Proper timezone conversion"
+        sourceDate: sourceZoneDate.toString(),
+        method: "Correct timezone conversion"
       });
       
     } catch (error) {
@@ -270,14 +277,19 @@ def convert_time(date_time_str="${dateTimeStr}",
     Returns:
         Converted datetime string
     """
+    # Parse the input datetime string as a naive datetime object
     dt = datetime.strptime(date_time_str, "%Y-%m-%d %H:%M:%S")
     
+    # Set the timezone of the datetime object to the source timezone
+    # This tells Python that the input time is in the source timezone
     source_tz = pytz.timezone(source_zone)
     localized_dt = source_tz.localize(dt)
     
+    # Convert to the target timezone
     target_tz = pytz.timezone(target_zone)
     target_dt = localized_dt.astimezone(target_tz)
     
+    # Format the result to a string
     return target_dt.strftime("%Y-%m-%d %H:%M:%S")
 
 # Example usage
