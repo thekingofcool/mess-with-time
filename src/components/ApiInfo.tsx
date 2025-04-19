@@ -1,201 +1,262 @@
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Globe, Key, Copy, ChevronRight, ExternalLink } from "lucide-react";
-import { useState, useEffect } from "react";
-import { useToast } from "@/components/ui/use-toast";
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import { toast } from "@/components/ui/use-toast";
 
 const ApiInfo = () => {
-  const [apiKey, setApiKey] = useState<string>("");
-  const [baseUrl, setBaseUrl] = useState<string>(window.location.origin);
-  const { toast } = useToast();
+  const [currentTimeData, setCurrentTimeData] = useState<any>(null);
+  const [convertTimestamp, setConvertTimestamp] = useState<string>("");
+  const [convertedData, setConvertedData] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  useEffect(() => {
-    // Determine the appropriate API URL based on environment
-    // For Cloudflare Pages, this would be your domain or API-specific subdomain
-    setBaseUrl(window.location.origin);
-  }, []);
+  // Handle current time request
+  const handleCurrentTime = async () => {
+    setIsLoading(true);
+    try {
+      const now = new Date();
+      const data = {
+        timestamp: Math.floor(now.getTime() / 1000),
+        iso: now.toISOString(),
+        utc: now.toUTCString()
+      };
+      setCurrentTimeData(data);
+      toast({
+        title: "Success",
+        description: "Current time fetched successfully",
+      });
+    } catch (error) {
+      console.error("Error:", error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch current time",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-  const copyToClipboard = (text: string) => {
+  // Handle timestamp conversion
+  const handleConvertTimestamp = async () => {
+    if (!convertTimestamp) {
+      toast({
+        title: "Error",
+        description: "Please enter a timestamp",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const timestamp = parseInt(convertTimestamp);
+      const date = new Date(timestamp * 1000);
+      
+      if (isNaN(date.getTime())) {
+        throw new Error("Invalid timestamp");
+      }
+      
+      const data = {
+        timestamp: timestamp,
+        iso: date.toISOString(),
+        utc: date.toUTCString(),
+        formatted: date.toLocaleString()
+      };
+      
+      setConvertedData(data);
+      toast({
+        title: "Success",
+        description: "Timestamp converted successfully",
+      });
+    } catch (error) {
+      console.error("Error:", error);
+      toast({
+        title: "Error",
+        description: "Failed to convert timestamp",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const copyToClipboard = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
     toast({
-      title: "Copied to clipboard",
-      duration: 2000,
+      title: "Copied",
+      description: `${label} copied to clipboard`,
     });
-  };
-
-  const generateDemoKey = () => {
-    const demoKey = `demo_${Math.random().toString(36).substring(2, 15)}`;
-    setApiKey(demoKey);
-    toast({
-      title: "Demo API key generated",
-      description: "This is a demo key with limited usage.",
-      duration: 3000,
-    });
-  };
-  
-  const openEndpoint = (url: string) => {
-    window.open(url, '_blank');
   };
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-center space-x-2 mb-4">
         <Globe className="w-6 h-6 text-purple-400" />
-        <h2 className="text-xl font-bold text-white">API Access</h2>
+        <h2 className="text-xl font-bold text-white">API Examples</h2>
       </div>
 
-      <div className="p-4 bg-black/20 rounded-lg">
-        <h3 className="text-lg font-semibold mb-2 text-white">API Endpoints</h3>
-        
-        <div className="space-y-4">
-          <div>
-            <div className="flex justify-between items-center mb-1">
-              <div className="font-medium text-gray-200">Current Time</div>
-              <div className="flex gap-2">
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={() => openEndpoint(`${baseUrl}/api/v1/current`)}
-                  className="text-gray-300 hover:text-white"
-                >
-                  <ExternalLink className="h-4 w-4" />
-                </Button>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={() => copyToClipboard(`${baseUrl}/api/v1/current`)}
-                  className="text-gray-300 hover:text-white"
-                >
-                  <Copy className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-            <div className="bg-black/30 p-2 rounded text-sm font-mono text-gray-300">
-              GET {baseUrl}/api/v1/current
-            </div>
-          </div>
+      <div className="space-y-6">
+        <div className="bg-black/20 rounded-lg p-4 border border-purple-500/20">
+          <h3 className="text-lg font-semibold text-white mb-4">Current Time</h3>
           
-          <div>
-            <div className="flex justify-between items-center mb-1">
-              <div className="font-medium text-gray-200">Convert Timestamp</div>
-              <div className="flex gap-2">
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={() => openEndpoint(`${baseUrl}/api/v1/convert?timestamp=1618840800`)}
-                  className="text-gray-300 hover:text-white"
-                >
-                  <ExternalLink className="h-4 w-4" />
-                </Button>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={() => copyToClipboard(`${baseUrl}/api/v1/convert?timestamp=1618840800`)}
-                  className="text-gray-300 hover:text-white"
-                >
-                  <Copy className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-            <div className="bg-black/30 p-2 rounded text-sm font-mono text-gray-300">
-              GET {baseUrl}/api/v1/convert?timestamp=1618840800
-            </div>
-          </div>
-          
-          <div>
-            <div className="flex justify-between items-center mb-1">
-              <div className="font-medium text-gray-200">Time Zone Conversion</div>
-              <div className="flex gap-2">
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={() => openEndpoint(`${baseUrl}/api/v1/timezone?time=2023-04-19T15:30:00&from=UTC&to=America/New_York`)}
-                  className="text-gray-300 hover:text-white"
-                >
-                  <ExternalLink className="h-4 w-4" />
-                </Button>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={() => copyToClipboard(`${baseUrl}/api/v1/timezone?time=2023-04-19T15:30:00&from=UTC&to=America/New_York`)}
-                  className="text-gray-300 hover:text-white"
-                >
-                  <Copy className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-            <div className="bg-black/30 p-2 rounded text-sm font-mono break-all text-gray-300">
-              GET {baseUrl}/api/v1/timezone?time=2023-04-19T15:30:00&from=UTC&to=America/New_York
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="bg-purple-900/20 border border-purple-500/20 rounded-lg p-4">
-        <div className="flex items-center mb-4">
-          <Key className="text-purple-400 mr-2 h-5 w-5" />
-          <h3 className="text-lg font-semibold text-white">Your API Key</h3>
-        </div>
-        
-        {!apiKey ? (
-          <div className="space-y-4">
-            <p className="text-sm text-gray-300">
-              Generate a demo API key to test our endpoints with limited usage, or upgrade to Premium for increased limits.
-            </p>
-            <div className="flex space-x-2">
-              <Button variant="outline" onClick={generateDemoKey} className="border-purple-500/20 text-gray-100 hover:bg-purple-500/20">
-                Generate Demo Key
-              </Button>
-              <Button className="bg-gradient-to-r from-purple-500 to-pink-500 text-white">
-                Upgrade to Premium
-                <ChevronRight className="ml-1 h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            <div className="flex gap-2">
-              <Input 
-                value={apiKey} 
-                readOnly 
-                className="font-mono text-sm bg-black/20 border-purple-500/20 text-gray-100"
-              />
-              <Button 
-                variant="outline" 
-                onClick={() => copyToClipboard(apiKey)}
-                className="border-purple-500/20 hover:bg-purple-500/20"
-              >
-                <Copy className="h-4 w-4 text-gray-300" />
-              </Button>
-            </div>
-            <div className="text-sm text-gray-300">
-              <p className="mb-1">Usage limits:</p>
-              <ul className="list-disc list-inside">
-                <li>60 requests/hour</li>
-                <li>Basic endpoints only</li>
-                <li>No commercial use</li>
-              </ul>
-            </div>
-            <Button variant="default" className="bg-gradient-to-r from-purple-500 to-pink-500 text-white">
-              Upgrade to Premium
-              <ChevronRight className="ml-1 h-4 w-4" />
-            </Button>
-          </div>
-        )}
-      </div>
-
-      <div className="border-t border-purple-500/20 pt-4">
-        <h3 className="text-lg font-semibold mb-3 text-white">Documentation</h3>
-        <p className="text-sm text-gray-300 mb-4">
-          For detailed API documentation, including all endpoints, parameters, and response formats, 
-          please visit our comprehensive API reference.
-        </p>
-        <Link to="/api-docs">
-          <Button variant="outline" className="w-full border-purple-500/20 text-gray-100 hover:bg-purple-500/20">
-            View Full API Documentation
+          <Button 
+            onClick={handleCurrentTime}
+            disabled={isLoading}
+            className="w-full bg-black/20 border-purple-500/20 hover:bg-purple-500/20 text-gray-100 mb-4"
+          >
+            {isLoading ? "Loading..." : "Get Current Time"}
           </Button>
-        </Link>
+
+          {currentTimeData && (
+            <div className="space-y-3">
+              <div>
+                <p className="text-sm text-gray-300 mb-1">Unix Timestamp:</p>
+                <div className="flex items-center gap-2">
+                  <Input 
+                    value={currentTimeData.timestamp} 
+                    readOnly 
+                    className="bg-black/20 border-purple-500/20 text-gray-100"
+                  />
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => copyToClipboard(currentTimeData.timestamp.toString(), "Timestamp")}
+                    className="bg-black/20 border-purple-500/20 hover:bg-purple-500/20"
+                  >
+                    <Copy className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+
+              <div>
+                <p className="text-sm text-gray-300 mb-1">ISO 8601:</p>
+                <div className="flex items-center gap-2">
+                  <Input 
+                    value={currentTimeData.iso} 
+                    readOnly 
+                    className="bg-black/20 border-purple-500/20 text-gray-100"
+                  />
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => copyToClipboard(currentTimeData.iso, "ISO time")}
+                    className="bg-black/20 border-purple-500/20 hover:bg-purple-500/20"
+                  >
+                    <Copy className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+
+              <div>
+                <p className="text-sm text-gray-300 mb-1">UTC:</p>
+                <div className="flex items-center gap-2">
+                  <Input 
+                    value={currentTimeData.utc} 
+                    readOnly 
+                    className="bg-black/20 border-purple-500/20 text-gray-100"
+                  />
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => copyToClipboard(currentTimeData.utc, "UTC time")}
+                    className="bg-black/20 border-purple-500/20 hover:bg-purple-500/20"
+                  >
+                    <Copy className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="bg-black/20 rounded-lg p-4 border border-purple-500/20">
+          <h3 className="text-lg font-semibold text-white mb-4">Convert Timestamp</h3>
+          
+          <div className="space-y-4">
+            <div>
+              <p className="text-sm text-gray-300 mb-1">Unix Timestamp:</p>
+              <div className="flex items-center gap-2">
+                <Input 
+                  value={convertTimestamp}
+                  onChange={(e) => setConvertTimestamp(e.target.value)}
+                  placeholder="Enter Unix timestamp (seconds)"
+                  className="bg-black/20 border-purple-500/20 text-gray-100"
+                />
+              </div>
+            </div>
+
+            <Button 
+              onClick={handleConvertTimestamp}
+              disabled={isLoading}
+              className="w-full bg-black/20 border-purple-500/20 hover:bg-purple-500/20 text-gray-100"
+            >
+              {isLoading ? "Converting..." : "Convert Timestamp"}
+            </Button>
+
+            {convertedData && (
+              <div className="space-y-3 mt-4">
+                <div>
+                  <p className="text-sm text-gray-300 mb-1">ISO 8601:</p>
+                  <div className="flex items-center gap-2">
+                    <Input 
+                      value={convertedData.iso} 
+                      readOnly 
+                      className="bg-black/20 border-purple-500/20 text-gray-100"
+                    />
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => copyToClipboard(convertedData.iso, "ISO time")}
+                      className="bg-black/20 border-purple-500/20 hover:bg-purple-500/20"
+                    >
+                      <Copy className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+
+                <div>
+                  <p className="text-sm text-gray-300 mb-1">UTC:</p>
+                  <div className="flex items-center gap-2">
+                    <Input 
+                      value={convertedData.utc} 
+                      readOnly 
+                      className="bg-black/20 border-purple-500/20 text-gray-100"
+                    />
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => copyToClipboard(convertedData.utc, "UTC time")}
+                      className="bg-black/20 border-purple-500/20 hover:bg-purple-500/20"
+                    >
+                      <Copy className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+
+                <div>
+                  <p className="text-sm text-gray-300 mb-1">Formatted:</p>
+                  <div className="flex items-center gap-2">
+                    <Input 
+                      value={convertedData.formatted} 
+                      readOnly 
+                      className="bg-black/20 border-purple-500/20 text-gray-100"
+                    />
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => copyToClipboard(convertedData.formatted, "Formatted time")}
+                      className="bg-black/20 border-purple-500/20 hover:bg-purple-500/20"
+                    >
+                      <Copy className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
