@@ -10,7 +10,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
-import { CalendarIcon, Copy, Code, Earth } from "lucide-react";
+import { CalendarIcon, Copy, Code, Earth, Clock } from "lucide-react";
 import { format } from "date-fns";
 import { formatDateInput, formatTimeInput, highlightPythonCode } from "@/utils/dateTimeUtils";
 
@@ -49,25 +49,20 @@ const TimeConverter = () => {
 
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const input = e.target.value;
-    // Only allow digits and hyphens
     const cleanInput = input.replace(/[^\d-]/g, '');
     
-    // Process date format: YYYY-MM-DD
     let formattedInput = '';
     const digits = cleanInput.replace(/-/g, '');
     
     if (digits.length > 0) {
-      // Process year part (max 4 digits)
       const year = digits.substring(0, 4);
       formattedInput = year;
       
       if (year.length === 4) {
         formattedInput += '-';
         
-        // Process month part (max 2 digits)
         if (digits.length > 4) {
           let month = digits.substring(4, 6);
-          // Validate month (01-12)
           if (month.length === 1) {
             if (month > '1') {
               month = '0' + month;
@@ -82,21 +77,17 @@ const TimeConverter = () => {
           if (month.length === 2) {
             formattedInput += '-';
             
-            // Process day part (max 2 digits)
             if (digits.length > 6) {
               let day = digits.substring(6, 8);
               
-              // Calculate days in month
               const yearNum = parseInt(year);
               const monthNum = parseInt(month);
               const daysInMonth = [
                 31,
-                // February has 29 days in leap years
                 (yearNum % 4 === 0 && (yearNum % 100 !== 0 || yearNum % 400 === 0)) ? 29 : 28,
                 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
               ][monthNum - 1];
               
-              // Validate day
               if (day.length === 1) {
                 if (day > '3' || (monthNum === 2 && day > '2')) {
                   day = '0' + day;
@@ -118,15 +109,12 @@ const TimeConverter = () => {
 
   const handleTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const input = e.target.value;
-    // Only allow digits and colons
     const cleanInput = input.replace(/[^\d:]/g, '');
     
-    // Process time format: HH:MM:SS
     let formattedInput = '';
     const digits = cleanInput.replace(/:/g, '');
     
     if (digits.length > 0) {
-      // Process hours part (max 2 digits)
       let hours = digits.substring(0, 2);
       if (hours.length === 1) {
         if (hours > '2') {
@@ -141,7 +129,6 @@ const TimeConverter = () => {
       if (hours.length === 2) {
         formattedInput += ':';
         
-        // Process minutes part (max 2 digits)
         if (digits.length > 2) {
           let minutes = digits.substring(2, 4);
           if (minutes.length === 1) {
@@ -157,7 +144,6 @@ const TimeConverter = () => {
           if (minutes.length === 2) {
             formattedInput += ':';
             
-            // Process seconds part (max 2 digits)
             if (digits.length > 4) {
               let seconds = digits.substring(4, 6);
               if (seconds.length === 1) {
@@ -176,6 +162,14 @@ const TimeConverter = () => {
     }
     
     setTimeInput(formattedInput);
+  };
+
+  const handleCurrentTime = () => {
+    const now = new Date();
+    const zonedTime = formatInTimeZone(now, sourceZone, "yyyy-MM-dd HH:mm:ss");
+    const [date, time] = zonedTime.split(' ');
+    setDateInput(date);
+    setTimeInput(time);
   };
 
   const getFullDateTime = () => {
@@ -338,19 +332,52 @@ print(f"Converted time: {result}")
 
       <div className="space-y-4">
         <div className="grid grid-cols-1 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">
-              Date (yyyy-MM-dd)
-            </label>
-            <div className="flex items-center space-x-2">
+          <div className="flex flex-col space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-1">
+                Date (yyyy-MM-dd)
+              </label>
+              <div className="flex items-center space-x-2">
+                <Input
+                  type="text"
+                  placeholder="yyyy-MM-dd"
+                  value={dateInput}
+                  onChange={(e) => handleDateChange(e)}
+                  onKeyDown={(e) => {
+                    if (!/[\d-]/.test(e.key) && 
+                        e.key !== 'Backspace' && 
+                        e.key !== 'Delete' && 
+                        e.key !== 'ArrowLeft' && 
+                        e.key !== 'ArrowRight' &&
+                        e.key !== 'Tab') {
+                      e.preventDefault();
+                    }
+                  }}
+                  className="w-full bg-black/20 border-purple-500/20 text-gray-100 focus:border-purple-500"
+                />
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={handleCurrentTime}
+                  className="bg-black/20 border-purple-500/20 hover:bg-purple-500/20"
+                  title="Use current time"
+                >
+                  <Clock className="h-4 w-4 text-gray-300" />
+                </Button>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-1">
+                Time (HH:mm:ss)
+              </label>
               <Input
                 type="text"
-                placeholder="yyyy-MM-dd"
-                value={dateInput}
-                onChange={handleDateChange}
+                placeholder="HH:mm:ss"
+                value={timeInput}
+                onChange={(e) => handleTimeChange(e)}
                 onKeyDown={(e) => {
-                  // Allow digits, hyphens, backspace, delete, arrow keys and tab
-                  if (!/[\d-]/.test(e.key) && 
+                  if (!/[\d:]/.test(e.key) && 
                       e.key !== 'Backspace' && 
                       e.key !== 'Delete' && 
                       e.key !== 'ArrowLeft' && 
@@ -362,30 +389,6 @@ print(f"Converted time: {result}")
                 className="w-full bg-black/20 border-purple-500/20 text-gray-100 focus:border-purple-500"
               />
             </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">
-              Time (HH:mm:ss)
-            </label>
-            <Input
-              type="text"
-              placeholder="HH:mm:ss"
-              value={timeInput}
-              onChange={handleTimeChange}
-              onKeyDown={(e) => {
-                // Allow digits, colons, backspace, delete, arrow keys and tab
-                if (!/[\d:]/.test(e.key) && 
-                    e.key !== 'Backspace' && 
-                    e.key !== 'Delete' && 
-                    e.key !== 'ArrowLeft' && 
-                    e.key !== 'ArrowRight' &&
-                    e.key !== 'Tab') {
-                  e.preventDefault();
-                }
-              }}
-              className="w-full bg-black/20 border-purple-500/20 text-gray-100 focus:border-purple-500"
-            />
           </div>
         </div>
 
