@@ -70,11 +70,15 @@ const translations = {
   }
 }
 
+export function generateStaticParams() {
+  return Object.keys(translations).map((lang) => ({ lang }))
+}
+
 interface HomeProps {
   params: { lang: string }
 }
 
-export default async function Home({ params }: HomeProps) {
+export default function Home({ params }: HomeProps) {
   const lang = params.lang as keyof typeof translations
   const t = translations[lang] || translations.en
 

@@ -13,6 +13,20 @@ export const timeFormats = {
   }
 }
 
+export const commonTimezones = [
+  'UTC',
+  'Asia/Shanghai',
+  'America/New_York',
+  'America/Los_Angeles',
+  'Europe/London',
+  'Europe/Paris',
+  'Europe/Berlin',
+  'Asia/Tokyo',
+  'Asia/Singapore',
+  'Australia/Sydney',
+  'Pacific/Auckland'
+]
+
 export function timestampToDate(timestamp: number): Date {
   return fromUnixTime(timestamp)
 }

@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useParams } from 'next/navigation'
-import { timestampToDate, dateToTimestamp, formatDateTime, convertTimezone, addTime, getLocalTimezone } from '@/utils/time'
+import { timestampToDate, dateToTimestamp, formatDateTime, convertTimezone, addTime, getLocalTimezone, commonTimezones } from '@/utils/time'
 
 const timeUnits = [
   { value: 'years', label: { en: 'Years', zh: '年', es: 'Años' } },
@@ -122,25 +122,33 @@ export function TimeConverter() {
             <label className="block text-sm font-medium mb-1">
               {t.sourceTimezone}
             </label>
-            <input
-              type="text"
+            <select
               value={sourceTimezone}
               onChange={(e) => setSourceTimezone(e.target.value)}
-              placeholder="America/New_York"
               className="w-full p-3 border rounded-lg dark:bg-gray-700 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            />
+            >
+              {commonTimezones.map((tz) => (
+                <option key={tz} value={tz}>
+                  {tz}
+                </option>
+              ))}
+            </select>
           </div>
           <div>
             <label className="block text-sm font-medium mb-1">
               {t.targetTimezone}
             </label>
-            <input
-              type="text"
+            <select
               value={targetTimezone}
               onChange={(e) => setTargetTimezone(e.target.value)}
-              placeholder="UTC"
               className="w-full p-3 border rounded-lg dark:bg-gray-700 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            />
+            >
+              {commonTimezones.map((tz) => (
+                <option key={tz} value={tz}>
+                  {tz}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
 

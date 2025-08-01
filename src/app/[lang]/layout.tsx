@@ -27,7 +27,11 @@ export const viewport: Viewport = {
   ]
 }
 
-export async function generateMetadata({ params }: { params: { lang: string } }): Promise<Metadata> {
+export function generateStaticParams() {
+  return Object.keys(languages).map((lang) => ({ lang }))
+}
+
+export function generateMetadata({ params }: { params: { lang: string } }): Metadata {
   const lang = params.lang as keyof typeof languages
   const t = languages[lang] || languages.en
 
@@ -42,7 +46,7 @@ interface RootLayoutProps {
   params: { lang: string }
 }
 
-export default async function RootLayout({ children, params }: RootLayoutProps) {
+export default function RootLayout({ children, params }: RootLayoutProps) {
   const lang = params.lang as keyof typeof languages
 
   return (
