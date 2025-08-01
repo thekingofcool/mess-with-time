@@ -1,64 +1,90 @@
 # Mess with Time
 
-A comprehensive time manipulation toolkit that allows users to convert between time zones, work with timestamps, perform time calculations, and more.
+A versatile time conversion and manipulation tool built with Next.js. This web application provides an intuitive interface for working with timestamps, timezones, and date formats, along with educational content about time-related concepts.
 
 ## Features
 
-- **Time Zone Converter**: Convert times between different time zones
-- **Timestamp Converter**: Convert between human-readable dates and Unix timestamps
-- **Time Calculator**: Calculate time differences or add/subtract time intervals
-- **Current Time**: Display current time in various formats and time zones
-- **Relative Time**: Calculate time differences between dates
-- **Time Formatter**: Format dates and times in different styles
+- 🕒 Timestamp Conversion
+  - Convert between Unix timestamps and human-readable formats
+  - Support for multiple date formats (ISO 8601, RFC 2822, etc.)
 
-## Technologies Used
+- 🌍 Timezone Handling
+  - Convert times between different timezones
+  - Automatic local timezone detection
+  - Support for all major timezone formats
 
-This project is built with:
+- ⚡ Time Arithmetic
+  - Add or subtract time units (years, months, days, hours, minutes, seconds)
+  - Easy-to-use interface for time calculations
 
-- Vite
+- 🎯 Additional Features
+  - Display current holidays in major countries
+  - Dark/Light theme support
+  - Multi-language support (EN, CN, ES, FR, DE, RU)
+  - Responsive design for all devices
+  - Educational content about timestamps and time formats
+
+## Tech Stack
+
+- Next.js 13+ with App Router
 - TypeScript
-- React
-- shadcn-ui
 - Tailwind CSS
-- date-fns & date-fns-tz
+- next-themes for dark mode
+- next-i18next for internationalization
+- date-fns for time manipulation
+- Nager.Date API for holiday information
 
 ## Getting Started
 
-Follow these steps to set up the project locally:
+### Prerequisites
 
-```sh
-# Clone the repository
-git clone <YOUR_GIT_URL>
+- Node.js 18.0 or later
+- npm or yarn
 
-# Navigate to the project directory
-cd mess-with-time
+### Installation
 
-# Install dependencies
-npm install
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/yourusername/mess-with-time.git
+   cd mess-with-time
+   ```
 
-# Start the development server
-npm run dev
-```
+2. Install dependencies:
+   ```bash
+   npm install
+   # or
+   yarn install
+   ```
 
-## Development
+3. Run the development server:
+   ```bash
+   npm run dev
+   # or
+   yarn dev
+   ```
 
-The app is structured as follows:
+4. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-- `src/components/`: Contains the main components for each time tool
-- `src/utils/`: Utility functions for date and time manipulation
-- `src/pages/`: Page components (Index, NotFound)
-- `src/lib/`: shadcn-ui component configurations
+## Deployment
 
-## Building for Production
+This project is configured for deployment on Cloudflare Pages. The deployment process is automated through GitHub Actions.
 
-To create a production build:
+### Manual Deployment Steps
 
-```sh
-npm run build
-```
+1. Build the project:
+   ```bash
+   npm run build
+   ```
 
-To preview the production build locally:
+2. Test the production build locally:
+   ```bash
+   npm run start
+   ```
 
-```sh
-npm run preview
-```
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

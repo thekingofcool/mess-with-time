@@ -1,482 +1,154 @@
+'use client'
 
-import React, { useState } from "react";
-import { formatInTimeZone, toZonedTime } from "date-fns-tz";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { useToast } from "@/components/ui/use-toast";
-import { CalendarIcon, Copy, Code, Earth, Clock } from "lucide-react";
-import { format, parse, parseISO } from "date-fns";
-import { formatDateInput, formatTimeInput, highlightPythonCode } from "@/utils/dateTimeUtils";
+import { useState } from 'react'
+import { timestampToDate, dateToTimestamp, formatDateTime, convertTimezone, addTime, getLocalTimezone } from '@/utils/time'
 
-const TimeConverter = () => {
-  const [dateInput, setDateInput] = useState("");
-  const [timeInput, setTimeInput] = useState("");
-  const [sourceZone, setSourceZone] = useState("UTC");
-  const [targetZone, setTargetZone] = useState("Asia/Shanghai");
-  const [convertedResult, setConvertedResult] = useState("");
-  const [pythonCode, setPythonCode] = useState("");
-  const { toast } = useToast();
+const timeUnits = [
+  { value: 'years', label: 'Years' },
+  { value: 'months', label: 'Months' },
+  { value: 'days', label: 'Days' },
+  { value: 'hours', label: 'Hours' },
+  { value: 'minutes', label: 'Minutes' },
+  { value: 'seconds', label: 'Seconds' }
+] as const
 
-  const timeZones = [
-    "Africa/Cairo",
-    "America/Chicago",
-    "America/Los_Angeles",
-    "America/New_York",
-    "America/Sao_Paulo",
-    "Asia/Dubai",
-    "Asia/Kolkata",
-    "Asia/Shanghai",
-    "Asia/Singapore",
-    "Asia/Tokyo",
-    "Australia/Sydney",
-    "Europe/Berlin",
-    "Europe/London",
-    "Europe/Moscow",
-    "Europe/Paris",
-    "Pacific/Auckland",
-    "UTC",
-  ].sort();
-  
-  const formatTimeZoneDisplay = (zone: string) => {
-    return zone.replace(/_/g, ' ');
-  };
+export function TimeConverter() {
+  const [inputValue, setInputValue] = useState('')
+  const [sourceTimezone, setSourceTimezone] = useState(getLocalTimezone())
+  const [targetTimezone, setTargetTimezone] = useState('UTC')
+  const [timeUnit, setTimeUnit] = useState<typeof timeUnits[number]['value']>('hours')
+  const [timeAmount, setTimeAmount] = useState(0)
 
-  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const input = e.target.value;
-    const cleanInput = input.replace(/[^\d-]/g, '');
-    
-    let formattedInput = '';
-    const digits = cleanInput.replace(/-/g, '');
-    
-    if (digits.length > 0) {
-      const year = digits.substring(0, 4);
-      formattedInput = year;
-      
-      if (year.length === 4) {
-        formattedInput += '-';
-        
-        if (digits.length > 4) {
-          let month = digits.substring(4, 6);
-          if (month.length === 1) {
-            if (month > '1') {
-              month = '0' + month;
-            }
-          } else if (month.length === 2) {
-            if (month === '00') month = '01';
-            if (parseInt(month) > 12) month = '12';
-          }
-          
-          formattedInput += month;
-          
-          if (month.length === 2) {
-            formattedInput += '-';
-            
-            if (digits.length > 6) {
-              let day = digits.substring(6, 8);
-              
-              const yearNum = parseInt(year);
-              const monthNum = parseInt(month);
-              const daysInMonth = [
-                31,
-                (yearNum % 4 === 0 && (yearNum % 100 !== 0 || yearNum % 400 === 0)) ? 29 : 28,
-                31, 30, 31, 30, 31, 31, 30, 31, 30, 31
-              ][monthNum - 1];
-              
-              if (day.length === 1) {
-                if (day > '3' || (monthNum === 2 && day > '2')) {
-                  day = '0' + day;
-                }
-              } else if (day.length === 2) {
-                if (day === '00') day = '01';
-                if (parseInt(day) > daysInMonth) day = daysInMonth.toString();
-              }
-              
-              formattedInput += day;
-            }
-          }
-        }
-      }
-    }
-    
-    setDateInput(formattedInput);
-  };
+  const [result, setResult] = useState<{
+    original: string
+    converted: string
+    timestamp: number
+  } | null>(null)
 
-  const handleTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const input = e.target.value;
-    const cleanInput = input.replace(/[^\d:]/g, '');
-    
-    let formattedInput = '';
-    const digits = cleanInput.replace(/:/g, '');
-    
-    if (digits.length > 0) {
-      let hours = digits.substring(0, 2);
-      if (hours.length === 1) {
-        if (hours > '2') {
-          hours = '0' + hours;
-        }
-      } else if (hours.length === 2) {
-        if (parseInt(hours) > 23) hours = '23';
-      }
-      
-      formattedInput = hours;
-      
-      if (hours.length === 2) {
-        formattedInput += ':';
-        
-        if (digits.length > 2) {
-          let minutes = digits.substring(2, 4);
-          if (minutes.length === 1) {
-            if (minutes > '5') {
-              minutes = '0' + minutes;
-            }
-          } else if (minutes.length === 2) {
-            if (parseInt(minutes) > 59) minutes = '59';
-          }
-          
-          formattedInput += minutes;
-          
-          if (minutes.length === 2) {
-            formattedInput += ':';
-            
-            if (digits.length > 4) {
-              let seconds = digits.substring(4, 6);
-              if (seconds.length === 1) {
-                if (seconds > '5') {
-                  seconds = '0' + seconds;
-                }
-              } else if (seconds.length === 2) {
-                if (parseInt(seconds) > 59) seconds = '59';
-              }
-              
-              formattedInput += seconds;
-            }
-          }
-        }
-      }
-    }
-    
-    setTimeInput(formattedInput);
-  };
-
-  const handleCurrentTime = () => {
+  const handleConvert = () => {
     try {
-      const nowUTC = new Date();
-      
-      const nowInSourceZone = toZonedTime(nowUTC, sourceZone);
-      
-      const formattedDate = format(nowInSourceZone, "yyyy-MM-dd");
-      const formattedTime = format(nowInSourceZone, "HH:mm:ss");
-      
-      setDateInput(formattedDate);
-      setTimeInput(formattedTime);
-    } catch (error) {
-      console.error("Error setting current time:", error);
-      toast({
-        title: "Error",
-        description: "Failed to get current time",
-        duration: 3000,
-      });
-    }
-  };
-
-  const getFullDateTime = () => {
-    const formattedDate = formatDateInput(dateInput);
-    const formattedTime = formatTimeInput(timeInput);
-    
-    if (formattedDate.length < 10 || !formattedTime) return "";
-    
-    return `${formattedDate} ${formattedTime}`;
-  };
-
-  const convertTime = () => {
-    try {
-      const fullDateTime = getFullDateTime();
-      if (!fullDateTime) {
-        setConvertedResult("Please enter valid date and time");
-        setPythonCode("");
-        return;
+      // Try parsing as timestamp first
+      let date = new Date()
+      if (/^\d+$/.test(inputValue)) {
+        date = timestampToDate(parseInt(inputValue))
+      } else {
+        date = new Date(inputValue)
       }
 
-      // Parse the input date time string
-      const [datePart, timePart] = fullDateTime.split(" ");
+      if (isNaN(date.getTime())) {
+        throw new Error('Invalid date/timestamp')
+      }
+
+      // Convert timezone if needed
+      const convertedDate = convertTimezone(date, sourceTimezone, targetTimezone)
       
-      // Create a Date object representing this time in the source timezone
-      const dateObj = new Date(`${datePart}T${timePart}`);
-      
-      // Get the time difference between source and target timezones
-      // We'll use the library functions to help us calculate this difference correctly
-      const now = new Date();
-      
-      // Get current time in both timezones to determine the offset difference
-      const nowInSourceTZ = toZonedTime(now, sourceZone);
-      const nowInTargetTZ = toZonedTime(now, targetZone);
-      
-      // Calculate the timezone difference in milliseconds
-      const tzDifference = nowInTargetTZ.getTime() - nowInSourceTZ.getTime();
-      
-      // Apply the formula: (Target TZ - Source TZ) + input date time
-      // Add this difference to the input date
-      const resultDate = new Date(dateObj.getTime() + tzDifference);
-      
-      // Format the result in a readable string format
-      const result = format(resultDate, "yyyy-MM-dd HH:mm:ss");
-      
-      setConvertedResult(result);
-      generatePythonCode(fullDateTime);
-      
-      console.log({
-        input: fullDateTime,
-        sourceZone,
-        targetZone,
-        result,
-        sourceDate: dateObj.toString(),
-        targetDate: resultDate.toString(),
-        tzDifference: `${tzDifference / (60 * 60 * 1000)} hours`,
-        method: "Using timezone difference formula"
-      });
-      
+      // Apply time arithmetic if amount is not 0
+      const finalDate = timeAmount !== 0 
+        ? addTime(convertedDate, timeAmount, timeUnit)
+        : convertedDate
+
+      setResult({
+        original: formatDateTime(date, 'en', sourceTimezone),
+        converted: formatDateTime(finalDate, 'en', targetTimezone),
+        timestamp: dateToTimestamp(finalDate)
+      })
     } catch (error) {
-      console.error("Conversion error:", error);
-      setConvertedResult("Invalid time format");
-      setPythonCode("");
+      console.error('Conversion error:', error)
+      setResult(null)
     }
-  };
-
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
-    toast({
-      title: "Copied to clipboard",
-      duration: 2000,
-    });
-  };
-
-  const copyPythonCode = () => {
-    if (pythonCode) {
-      navigator.clipboard.writeText(pythonCode);
-      toast({
-        title: "Python code copied to clipboard",
-        description: "The code has been copied and can be used in your Python environment.",
-        duration: 3000,
-      });
-    }
-  };
-
-  const generatePythonCode = (dateTimeStr: string) => {
-    const pythonCode = `
-from datetime import datetime
-import pytz
-
-def convert_time(date_time_str="${dateTimeStr}",
-                source_zone="${sourceZone}", target_zone="${targetZone}"):
-    """
-    Convert datetime between timezones using the formula:
-    (Target TZ - Source TZ) + input date time
-    
-    Parameters:
-        date_time_str: Date time string in format YYYY-MM-DD HH:MM:SS
-        source_zone: Source timezone name
-        target_zone: Target timezone name
-        
-    Returns:
-        Converted datetime string
-    """
-    # Parse the input datetime string
-    dt = datetime.strptime(date_time_str, "%Y-%m-%d %H:%M:%S")
-    
-    # Calculate timezone difference using a reference time
-    reference_time = datetime.now()
-    
-    # Get the reference time in both timezones
-    source_tz = pytz.timezone(source_zone)
-    target_tz = pytz.timezone(target_zone)
-    
-    ref_in_source = source_tz.localize(reference_time.replace(tzinfo=None))
-    ref_in_target = target_tz.localize(reference_time.replace(tzinfo=None))
-    
-    # Calculate difference in seconds between the two timezones
-    tz_diff_seconds = (ref_in_target.utcoffset().total_seconds() - 
-                        ref_in_source.utcoffset().total_seconds())
-    
-    # Apply the formula: (Target TZ - Source TZ) + input date time
-    # Add this difference to the input date
-    result_dt = dt + datetime.timedelta(seconds=tz_diff_seconds)
-    
-    # Format the result to a string
-    return result_dt.strftime("%Y-%m-%d %H:%M:%S")
-
-# Example usage
-result = convert_time()
-print(f"Converted time: {result}")
-    `.trim();
-
-    setPythonCode(pythonCode);
-  };
+  }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-center space-x-2 mb-4">
-        <Earth className="w-6 h-6 text-purple-400" />
-        <h2 className="text-xl font-bold text-white">Time Zone Converter</h2>
-      </div>
-
+    <div className="max-w-2xl mx-auto p-6 space-y-6">
       <div className="space-y-4">
-        <div className="grid grid-cols-1 gap-4">
-          <div className="flex flex-col space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">
-                Date (yyyy-MM-dd)
-              </label>
-              <div className="flex items-center space-x-2">
-                <Input
-                  type="text"
-                  placeholder="yyyy-MM-dd"
-                  value={dateInput}
-                  onChange={(e) => handleDateChange(e)}
-                  onKeyDown={(e) => {
-                    if (!/[\d-]/.test(e.key) && 
-                        e.key !== 'Backspace' && 
-                        e.key !== 'Delete' && 
-                        e.key !== 'ArrowLeft' && 
-                        e.key !== 'ArrowRight' &&
-                        e.key !== 'Tab') {
-                      e.preventDefault();
-                    }
-                  }}
-                  className="w-full bg-black/20 border-purple-500/20 text-gray-100 focus:border-purple-500"
-                />
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={handleCurrentTime}
-                  className="bg-black/20 border-purple-500/20 hover:bg-purple-500/20"
-                  title="Use current time"
-                >
-                  <Clock className="h-4 w-4 text-gray-300" />
-                </Button>
-              </div>
-            </div>
+        <div>
+          <label className="block text-sm font-medium mb-1">
+            Enter Timestamp or Date
+          </label>
+          <input
+            type="text"
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            placeholder="1234567890 or 2023-01-01T00:00:00Z"
+            className="w-full p-2 border rounded dark:bg-gray-800 dark:border-gray-600"
+          />
+        </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">
-                Time (HH:mm:ss)
-              </label>
-              <Input
-                type="text"
-                placeholder="HH:mm:ss"
-                value={timeInput}
-                onChange={(e) => handleTimeChange(e)}
-                onKeyDown={(e) => {
-                  if (!/[\d:]/.test(e.key) && 
-                      e.key !== 'Backspace' && 
-                      e.key !== 'Delete' && 
-                      e.key !== 'ArrowLeft' && 
-                      e.key !== 'ArrowRight' &&
-                      e.key !== 'Tab') {
-                    e.preventDefault();
-                  }
-                }}
-                className="w-full bg-black/20 border-purple-500/20 text-gray-100 focus:border-purple-500"
-              />
-            </div>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium mb-1">
+              Source Timezone
+            </label>
+            <input
+              type="text"
+              value={sourceTimezone}
+              onChange={(e) => setSourceTimezone(e.target.value)}
+              placeholder="America/New_York"
+              className="w-full p-2 border rounded dark:bg-gray-800 dark:border-gray-600"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">
+              Target Timezone
+            </label>
+            <input
+              type="text"
+              value={targetTimezone}
+              onChange={(e) => setTargetTimezone(e.target.value)}
+              placeholder="UTC"
+              className="w-full p-2 border rounded dark:bg-gray-800 dark:border-gray-600"
+            />
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">
-              Source Time Zone
+            <label className="block text-sm font-medium mb-1">
+              Add/Subtract Time
             </label>
-            <Select value={sourceZone} onValueChange={setSourceZone}>
-              <SelectTrigger className="bg-black/20 border-purple-500/20 text-gray-100">
-                <SelectValue placeholder="Select source zone" />
-              </SelectTrigger>
-              <SelectContent>
-                {timeZones.map((zone) => (
-                  <SelectItem key={zone} value={zone}>
-                    {formatTimeZoneDisplay(zone)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <input
+              type="number"
+              value={timeAmount}
+              onChange={(e) => setTimeAmount(parseInt(e.target.value) || 0)}
+              className="w-full p-2 border rounded dark:bg-gray-800 dark:border-gray-600"
+            />
           </div>
-
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">
-              Target Time Zone
+            <label className="block text-sm font-medium mb-1">
+              Time Unit
             </label>
-            <Select value={targetZone} onValueChange={setTargetZone}>
-              <SelectTrigger className="bg-black/20 border-purple-500/20 text-gray-100">
-                <SelectValue placeholder="Select target zone" />
-              </SelectTrigger>
-              <SelectContent>
-                {timeZones.map((zone) => (
-                  <SelectItem key={zone} value={zone}>
-                    {formatTimeZoneDisplay(zone)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <select
+              value={timeUnit}
+              onChange={(e) => setTimeUnit(e.target.value as typeof timeUnit)}
+              className="w-full p-2 border rounded dark:bg-gray-800 dark:border-gray-600"
+            >
+              {timeUnits.map((unit) => (
+                <option key={unit.value} value={unit.value}>
+                  {unit.label}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
 
-        <Button 
-          onClick={convertTime} 
-          className="w-full bg-black/20 border-purple-500/20 hover:bg-purple-500/20 text-gray-100"
+        <button
+          onClick={handleConvert}
+          className="w-full py-2 px-4 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
         >
-          Convert Time
-        </Button>
-
-        {convertedResult && (
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">
-              Converted Result
-            </label>
-            <div className="flex flex-col sm:flex-row gap-2">
-              <Input
-                value={convertedResult}
-                readOnly
-                className="w-full bg-black/20 border-purple-500/20 text-gray-100"
-              />
-              <Button
-                onClick={() => copyToClipboard(convertedResult)}
-                variant="outline"
-                className="sm:shrink-0 border-purple-500/20 hover:bg-purple-500/20"
-              >
-                <Copy className="h-4 w-4 mr-1" /> Copy
-              </Button>
-            </div>
-          </div>
-        )}
-
-        {pythonCode && (
-          <div className="mt-4">
-            <label className="block text-sm font-medium text-gray-300 mb-1">
-              Python Code
-            </label>
-            <div className="relative">
-              <pre className="bg-black/30 rounded-md p-4 overflow-auto max-h-[300px]">
-                <code className="text-gray-200 text-xs" dangerouslySetInnerHTML={{ __html: highlightPythonCode(pythonCode) }} />
-              </pre>
-              <Button
-                onClick={copyPythonCode}
-                variant="outline"
-                className="absolute top-2 right-2 h-8 py-1 px-2 border-purple-500/20 hover:bg-purple-500/20"
-              >
-                <Copy className="h-3 w-3 mr-1" /> Copy
-              </Button>
-            </div>
-          </div>
-        )}
+          Convert
+        </button>
       </div>
-    </div>
-  );
-};
 
-export default TimeConverter;
+      {result && (
+        <div className="mt-6 p-4 bg-gray-100 dark:bg-gray-800 rounded">
+          <h3 className="font-medium mb-2">Results:</h3>
+          <div className="space-y-2">
+            <p>Original: {result.original}</p>
+            <p>Converted: {result.converted}</p>
+            <p>Timestamp: {result.timestamp}</p>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
