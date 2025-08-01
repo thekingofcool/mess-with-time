@@ -71,8 +71,13 @@ const translations = {
   }
 }
 
-export default function Home({ params }: { params: { lang: string } }) {
-  const t = translations[params.lang as keyof typeof translations] || translations.en
+interface HomeProps {
+  params: { lang: string }
+}
+
+export default async function Home({ params }: HomeProps) {
+  const lang = params.lang as keyof typeof translations
+  const t = translations[lang] || translations.en
 
   return (
     <main className="min-h-screen bg-gray-50 dark:bg-gray-900">

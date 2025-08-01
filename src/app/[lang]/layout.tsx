@@ -1,6 +1,6 @@
 import '../globals.css'
 import { ThemeProvider } from '@/components/ThemeProvider'
-import { Metadata } from 'next'
+import { Metadata, Viewport } from 'next'
 
 const languages = {
   en: {
@@ -17,6 +17,16 @@ const languages = {
   }
 }
 
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: 'white' },
+    { media: '(prefers-color-scheme: dark)', color: '#111827' }
+  ]
+}
+
 export async function generateMetadata({ params }: { params: { lang: string } }): Promise<Metadata> {
   const lang = params.lang as keyof typeof languages
   const t = languages[lang] || languages.en
@@ -24,23 +34,19 @@ export async function generateMetadata({ params }: { params: { lang: string } })
   return {
     title: t.title,
     description: t.description,
-    viewport: 'width=device-width, initial-scale=1, maximum-scale=1',
-    themeColor: [
-      { media: '(prefers-color-scheme: light)', color: 'white' },
-      { media: '(prefers-color-scheme: dark)', color: '#111827' }
-    ]
   }
 }
 
-export default function RootLayout({
-  children,
-  params
-}: {
+interface RootLayoutProps {
   children: React.ReactNode
   params: { lang: string }
-}) {
+}
+
+export default async function RootLayout({ children, params }: RootLayoutProps) {
+  const lang = params.lang as keyof typeof languages
+
   return (
-    <html lang={params.lang} suppressHydrationWarning>
+    <html lang={lang} suppressHydrationWarning>
       <body className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
         <ThemeProvider>
           {children}
