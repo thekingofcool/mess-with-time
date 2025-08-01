@@ -1,27 +1,37 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
-const supportedLanguages = ['en', 'zh', 'es', 'fr', 'de', 'ru']
-const defaultLanguage = 'en'
+const defaultLocale = 'en'
+const locales = ['en', 'zh', 'es']
+
+function getLocale(request: NextRequest) {
+  const acceptLanguage = request.headers.get('accept-language')
+  if (!acceptLanguage) return defaultLocale
+
+  const userLocales = acceptLanguage.split(',').map(l => l.split(';')[0].trim())
+  const matchedLocale = userLocales.find(l => locales.includes(l.substring(0, 2)))
+  
+  return matchedLocale ? matchedLocale.substring(0, 2) : defaultLocale
+}
 
 export function middleware(request: NextRequest) {
-  // Get the pathname from the request
-  const pathname = request.nextUrl.pathname
+  const { pathname } = request.nextUrl
 
-  // If the pathname is just '/', redirect to the default language
+  // If it's the root path, redirect to the appropriate language
   if (pathname === '/') {
-    return NextResponse.redirect(new URL(`/${defaultLanguage}`, request.url))
+    const locale = getLocale(request)
+    return NextResponse.redirect(new URL(`/${locale}`, request.url))
   }
 
-  // Check if the pathname starts with a supported language
-  const pathnameIsMissingValidLanguage = supportedLanguages.every(
-    (lang) => !pathname.startsWith(`/${lang}`)
+  // Check if the pathname starts with a locale
+  const pathnameHasLocale = locales.some(
+    locale => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`
   )
 
-  // If the pathname doesn't start with a supported language, redirect to the default language
-  if (pathnameIsMissingValidLanguage) {
+  if (!pathnameHasLocale) {
+    // Redirect to default locale path
     return NextResponse.redirect(
-      new URL(`/${defaultLanguage}${pathname}`, request.url)
+      new URL(`/${defaultLocale}${pathname}`, request.url)
     )
   }
 

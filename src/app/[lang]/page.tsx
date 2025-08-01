@@ -70,16 +70,13 @@ const translations = {
   }
 }
 
-export function generateStaticParams() {
-  return Object.keys(translations).map((lang) => ({ lang }))
-}
-
 interface HomeProps {
-  params: { lang: string }
+  params: Promise<{ lang: string }>
 }
 
-export default function Home({ params }: HomeProps) {
-  const lang = params.lang as keyof typeof translations
+export default async function Home({ params }: HomeProps) {
+  const resolvedParams = await params
+  const lang = resolvedParams.lang as keyof typeof translations
   const t = translations[lang] || translations.en
 
   return (

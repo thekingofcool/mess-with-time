@@ -31,8 +31,9 @@ export function generateStaticParams() {
   return Object.keys(languages).map((lang) => ({ lang }))
 }
 
-export function generateMetadata({ params }: { params: { lang: string } }): Metadata {
-  const lang = params.lang as keyof typeof languages
+export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
+  const resolvedParams = await params
+  const lang = resolvedParams.lang as keyof typeof languages
   const t = languages[lang] || languages.en
 
   return {
@@ -43,11 +44,12 @@ export function generateMetadata({ params }: { params: { lang: string } }): Meta
 
 interface RootLayoutProps {
   children: React.ReactNode
-  params: { lang: string }
+  params: Promise<{ lang: string }>
 }
 
-export default function RootLayout({ children, params }: RootLayoutProps) {
-  const lang = params.lang as keyof typeof languages
+export default async function RootLayout({ children, params }: RootLayoutProps) {
+  const resolvedParams = await params
+  const lang = resolvedParams.lang as keyof typeof languages
 
   return (
     <html lang={lang} suppressHydrationWarning>
