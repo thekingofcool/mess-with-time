@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useParams } from 'next/navigation'
-import { timestampToDate, dateToTimestamp, formatDateTime, convertTimezone, addTime, getLocalTimezone, commonTimezones } from '@/utils/time'
+import { timestampToDate, dateToTimestamp, formatDateTime, convertTimezone, addTime, getLocalTimezone, timezoneLabels, timezoneGroups, type TimezoneId } from '@/utils/time'
 
 const timeUnits = [
   { value: 'years', label: { en: 'Years', zh: '年', es: 'Años' } },
@@ -59,10 +59,12 @@ export function TimeConverter() {
   const params = useParams()
   const currentLang = (params?.lang as string) || 'en'
   const t = translations[currentLang as keyof typeof translations] || translations.en
+  const groups = timezoneGroups[currentLang] || timezoneGroups.en
+  const labels = timezoneLabels[currentLang] || timezoneLabels.en
 
   const [inputValue, setInputValue] = useState('')
-  const [sourceTimezone, setSourceTimezone] = useState(getLocalTimezone())
-  const [targetTimezone, setTargetTimezone] = useState('UTC')
+  const [sourceTimezone, setSourceTimezone] = useState<TimezoneId>(getLocalTimezone() as TimezoneId)
+  const [targetTimezone, setTargetTimezone] = useState<TimezoneId>('UTC')
   const [timeUnit, setTimeUnit] = useState<typeof timeUnits[number]['value']>('hours')
   const [timeAmount, setTimeAmount] = useState(0)
 
@@ -124,13 +126,17 @@ export function TimeConverter() {
             </label>
             <select
               value={sourceTimezone}
-              onChange={(e) => setSourceTimezone(e.target.value)}
+              onChange={(e) => setSourceTimezone(e.target.value as TimezoneId)}
               className="w-full p-3 border rounded-lg dark:bg-gray-700 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             >
-              {commonTimezones.map((tz) => (
-                <option key={tz} value={tz}>
-                  {tz}
-                </option>
+              {Object.entries(groups).map(([group, timezones]) => (
+                <optgroup key={group} label={group}>
+                  {timezones.map((tz) => (
+                    <option key={tz} value={tz}>
+                      {labels[tz]}
+                    </option>
+                  ))}
+                </optgroup>
               ))}
             </select>
           </div>
@@ -140,13 +146,17 @@ export function TimeConverter() {
             </label>
             <select
               value={targetTimezone}
-              onChange={(e) => setTargetTimezone(e.target.value)}
+              onChange={(e) => setTargetTimezone(e.target.value as TimezoneId)}
               className="w-full p-3 border rounded-lg dark:bg-gray-700 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             >
-              {commonTimezones.map((tz) => (
-                <option key={tz} value={tz}>
-                  {tz}
-                </option>
+              {Object.entries(groups).map(([group, timezones]) => (
+                <optgroup key={group} label={group}>
+                  {timezones.map((tz) => (
+                    <option key={tz} value={tz}>
+                      {labels[tz]}
+                    </option>
+                  ))}
+                </optgroup>
               ))}
             </select>
           </div>
