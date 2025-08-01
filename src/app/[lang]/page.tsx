@@ -1,6 +1,5 @@
 import { Header } from '@/components/Header'
 import { TimeConverter } from '@/components/TimeConverter'
-import { HolidayDisplay } from '@/components/HolidayDisplay'
 
 const translations = {
   en: {
@@ -84,44 +83,36 @@ export default async function Home({ params }: HomeProps) {
       <Header />
       
       <div className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 space-y-8">
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
-              <TimeConverter />
-            </div>
-
-            <section className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
-              <h2 className="text-2xl font-bold mb-6">{t.about}</h2>
-              
-              <div className="prose dark:prose-invert max-w-none">
-                <h3 className="text-xl font-semibold mb-3">{t.whatIs}</h3>
-                <p className="mb-6">{t.whatIsDesc}</p>
-
-                <h3 className="text-xl font-semibold mb-3">{t.unixTimestamp}</h3>
-                <p className="mb-6">{t.unixDesc}</p>
-
-                <h3 className="text-xl font-semibold mb-3">{t.useCases}</h3>
-                <ul className="list-disc pl-6 mb-6 space-y-2">
-                  {t.useCasesList.map((item, index) => (
-                    <li key={index}>{item}</li>
-                  ))}
-                </ul>
-
-                <h3 className="text-xl font-semibold mb-3">{t.formats}</h3>
-                <ul className="list-disc pl-6 space-y-2">
-                  {t.formatsList.map((item, index) => (
-                    <li key={index}>{item}</li>
-                  ))}
-                </ul>
-              </div>
-            </section>
+        <div className="max-w-4xl mx-auto space-y-8">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+            <TimeConverter />
           </div>
 
-          <div className="lg:col-span-1">
-            <div className="sticky top-4">
-              <HolidayDisplay />
+          <section className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+            <h2 className="text-2xl font-bold mb-6">{t.about}</h2>
+            
+            <div className="prose dark:prose-invert max-w-none">
+              <h3 className="text-xl font-semibold mb-3">{t.whatIs}</h3>
+              <p className="mb-6">{t.whatIsDesc}</p>
+
+              <h3 className="text-xl font-semibold mb-3">{t.unixTimestamp}</h3>
+              <p className="mb-6">{t.unixDesc}</p>
+
+              <h3 className="text-xl font-semibold mb-3">{t.useCases}</h3>
+              <ul className="list-disc pl-6 mb-6 space-y-2">
+                {t.useCasesList.map((item, index) => (
+                  <li key={index}>{item}</li>
+                ))}
+              </ul>
+
+              <h3 className="text-xl font-semibold mb-3">{t.formats}</h3>
+              <ul className="list-disc pl-6 space-y-2">
+                {t.formatsList.map((item, index) => (
+                  <li key={index}>{item}</li>
+                ))}
+              </ul>
             </div>
-          </div>
+          </section>
         </div>
       </div>
     </main>
