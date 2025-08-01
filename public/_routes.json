@@ -1,5 +1,19 @@
 {
   "version": 1,
   "include": ["/*"],
-  "exclude": ["/api/*"]
+  "exclude": ["/api/*"],
+  "routes": [
+    {
+      "src": "/",
+      "dest": "/index.html"
+    },
+    {
+      "src": "/(en|zh|es)/?$",
+      "dest": "/$1/index.html"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/404.html"
+    }
+  ]
 }
