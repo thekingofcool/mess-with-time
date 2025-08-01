@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { getHolidays, getTodayHolidays } from '@/utils/holidays'
+import { getHolidays, getTodayHolidays, type Holiday } from '@/utils/holidays'
 
 const countryNames: Record<string, string> = {
   US: 'United States',
@@ -15,7 +15,7 @@ const countryNames: Record<string, string> = {
 }
 
 export function HolidayDisplay() {
-  const [todayHolidays, setTodayHolidays] = useState<Record<string, any>>({})
+  const [todayHolidays, setTodayHolidays] = useState<Record<string, Holiday[]>>({})
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -26,7 +26,7 @@ export function HolidayDisplay() {
         const holidays = getTodayHolidays(allHolidays)
         setTodayHolidays(holidays)
         setLoading(false)
-      } catch (err) {
+      } catch {
         setError('Failed to fetch holidays')
         setLoading(false)
       }
@@ -55,7 +55,7 @@ export function HolidayDisplay() {
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-      <h2 className="text-xl font-semibold mb-4">Today's Holidays</h2>
+      <h2 className="text-xl font-semibold mb-4">Today&apos;s Holidays</h2>
       
       {hasHolidays ? (
         <div className="space-y-4">
@@ -65,7 +65,7 @@ export function HolidayDisplay() {
                 {countryNames[country] || country}
               </h3>
               <ul className="space-y-1">
-                {holidays.map((holiday: any) => (
+                {holidays.map((holiday) => (
                   <li key={holiday.name} className="text-gray-600 dark:text-gray-300">
                     {holiday.name} ({holiday.localName})
                   </li>

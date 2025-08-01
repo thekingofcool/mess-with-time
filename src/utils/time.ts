@@ -1,4 +1,4 @@
-import { format, fromUnixTime, getUnixTime } from 'date-fns'
+import { fromUnixTime, getUnixTime } from 'date-fns'
 import { formatInTimeZone, getTimezoneOffset } from 'date-fns-tz'
 
 export const timeFormats = {
